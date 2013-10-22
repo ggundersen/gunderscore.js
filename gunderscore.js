@@ -1,10 +1,11 @@
 /* 
  * gunderscore.js
+ * 2013-10-15
  * ----------------------------------------------------------------*/
 
- var g_ = (function() {
+var g_ = (function() {
 
- 	/* `gunderscore` object
+	/* `gunderscore` object
  	 */
 	var g_ = {};
 
@@ -63,12 +64,15 @@
 	 * collection, returning a collection of predicates
 	 */
 	var filter = g_.filter = function(collection, predicate) {
-		var result;
+		var result = [];
 
-	};
+		each(collection, function(i) {
+			if ( predicate(collection[i]) ) {
+				result.push( collection[i] );
+			}
+		});
 
-	g_.join = function(collection) {
-		// ?
+		return result;
 	};
 
 /* Utility
@@ -103,7 +107,7 @@
 
 	return g_;
 
- })();
+})();
 
- var items = [1, 2, 3];
- var double = function(x) { return x*x; };
+var items = [1, 2, 3];
+var double = function(x) { return x*x; };
