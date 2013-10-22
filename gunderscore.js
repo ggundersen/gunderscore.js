@@ -137,12 +137,24 @@ var g_ = (function() {
 
 
 	g_.keys = function(collection) {
+		var result = [];
 
+		for (key in collection) {
+			result.push(key);
+		}
+
+		return result;
 	};
 
 
 	g_.values = function(collection) {
+		var result = [];
 
+		for (key in collection) {
+			result.push( collection[key] );
+		}
+
+		return result;
 	};
 
 
@@ -176,8 +188,6 @@ var g_ = (function() {
 	};
 
 
-	/*
-	 */
 	g_.isTruthy = function(value) {
 		return (value !== false) && g_.isExistential(value);
 	};
@@ -190,5 +200,6 @@ var g_ = (function() {
 
 })();
 
-var items = [1, 2, 3];
+var myArray = [1, 2, 3];
+var myObj = { name: 'Bob', profession: 'Programmer' };
 var double = function(x) { return x*x; };
