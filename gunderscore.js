@@ -3,11 +3,15 @@
  * 2013-10-15
  * ----------------------------------------------------------------*/
 
+
 var g_ = (function() {
 
-	/* `gunderscore` object
- 	 */
+
+/* `gunderscore` object
+ * ----------------------------------------------------------------*/
+
 	var g_ = {};
+
 
 /* Collection functions
  *
@@ -33,6 +37,7 @@ var g_ = (function() {
 		}
 	};
 
+
 	/* `map` calls a function on every value in a collection,
 	 * returning a collection of results. Notice how it can use
 	 * `each`; we are quickly building upon small abstractions.
@@ -47,6 +52,7 @@ var g_ = (function() {
 		return result;
 	};
 
+
 	/* `reduce` (or `fold`) calls a function on every value in a
 	 * collection, accumulates the result, and returns it.
 	 */
@@ -59,6 +65,7 @@ var g_ = (function() {
 
 		return result;
 	};
+
 
 	/* `filter` calls a predicate function on each item in a
 	 * collection, returning a collection of predicates
@@ -75,6 +82,47 @@ var g_ = (function() {
 		return result;
 	};
 
+
+	/* `find` takes a collection and a predicate and returns the
+	 * first element for which the predicate returns true
+	 */
+	g_.find = function(collection, predicate) {
+		return filter(collection, predicate)[0];
+	};
+
+
+	/* `not` is the opposite of filter; this feels like it could be
+	 * greatly optimized.
+	 */
+	g_.not = function(collection, predicate) {
+		var result = [];
+
+		each(collection, function(i) {
+			if ( !predicate(collection[i]) ) {
+				result.push( collection[i] );
+			}
+		});
+
+		return result;
+	};
+
+
+	/* `all` takes a collection and a predicate and returns true if
+	 * all of the elements return true on the predicate
+	 */
+	g_.all = function(collection, predicate) {
+		return collection.length === filter(collection, predicate).length;
+	};
+
+
+	/* `any` takes a collection and a predicate and returns true if 
+	 * any of the elements return true on the predicate
+	 */
+	 g_.any = function(collection, predicate) {
+	 	return filter(collection, predicate).length > 0;
+	 };
+
+
 /* Utility
  * ----------------------------------------------------------------*/
 
@@ -86,6 +134,17 @@ var g_ = (function() {
 	g_.identity = function(value) {
 		return value;
 	}
+
+
+	g_.keys = function(collection) {
+
+	};
+
+
+	g_.values = function(collection) {
+
+	};
+
 
 /* Predicates
  *
@@ -101,10 +160,32 @@ var g_ = (function() {
 		return value != null;
 	};
 
+
+	g_.isFunction = function(value) {
+		return (typeof value === 'function');
+	};
+
+
+	g_.isNumber = function(value) {
+		return !isNaN(value);
+	};
+
+
+	g_.isString = function(value) {
+		return (typeof value === 'string');
+	};
+
+
+	/*
+	 */
 	g_.isTruthy = function(value) {
 		return (value !== false) && g_.isExistential(value);
 	};
 
+
+
+/* Return
+ * ----------------------------------------------------------------*/
 	return g_;
 
 })();
