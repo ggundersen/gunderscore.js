@@ -91,6 +91,21 @@ var g_ = (function(g_) {
 	};
 
 
+	/* `where` takes an array of objects and returns all of the
+	 * objects that match the criteria.
+	 */
+	g_.where = function() {
+
+	};
+
+
+	/* `extend`
+	 */
+	g_.extend = function() {
+
+	};
+
+
 	/* `not` is the opposite of filter; this feels like it could be
 	 * greatly optimized.
 	 */
@@ -126,24 +141,24 @@ var g_ = (function(g_) {
 	/* `any` takes a collection and a predicate and returns true if 
 	 * any of the elements return true on the predicate.
 	 */
-	 g_.any = function(collection, predicate) {
-	 	return filter(collection, predicate).length > 0;
-	 };
+	g_.any = function(collection, predicate) {
+		return filter(collection, predicate).length > 0;
+	};
 
 
 	/* `max` returns the largest number in an array.
 	 */
-	 g_.max = function(collection) {
+	g_.max = function(collection) {
 	 	var result = 0;
 
-	 	each(collection, function(i) {
-	 		if ( g_.isGreaterThan(collection[i], result) ) {
-	 			result = collection[i];
-	 		}
-	 	});
+		each(collection, function(i) {
+			if ( g_.isGreaterThan(collection[i], result) ) {
+				result = collection[i];
+			}
+		});
 
-	 	return result;
-	 };
+		return result;
+	};
 
 
 /* Utility
