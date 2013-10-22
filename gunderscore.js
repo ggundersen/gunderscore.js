@@ -4,23 +4,23 @@
  * ----------------------------------------------------------------*/
 
 
-var g_ = (function() {
+var anArray = [1, 2, 3];
+var anOject = { name: 'Bob', profession: 'Programmer' };
+var doubleX = function(x) { return x * x; };
 
 
-/* `gunderscore` object
- * ----------------------------------------------------------------*/
-
-	var g_ = {};
+var g_ = (function(g_) {
 
 
 /* Collection functions
  *
  * @Fogus: 'Functional programming is extremely useful for tasks
  * requiring that some operation happen on many items in a
- * collection... The point of a collection-centric view... is to a
- * consistent processing idiom so that we can reuse a comprehensive
+ * collection... The point of a collection-centric view... is to have 
+ * a consistent processing idiom so that we can reuse a comprehensive
  * set of functions.'
  * ----------------------------------------------------------------*/
+
 
 	/* `each` is an immutable iterator. It is the quintessential
 	 * example of a functional style. Note that its implementation
@@ -39,8 +39,8 @@ var g_ = (function() {
 
 
 	/* `map` calls a function on every value in a collection,
-	 * returning a collection of results. Notice how it can use
-	 * `each`; we are quickly building upon small abstractions.
+	 * returning a collection of results. Notice how it uses `each`;
+	 * we are quickly building upon small abstractions.
 	 */
 	var map = g_.map = function(collection, func) {
 		var result = [];
@@ -107,8 +107,16 @@ var g_ = (function() {
 	};
 
 
+	/* `tail` creates a new array with the first element from the
+	 * input array removed.
+	 */
+	g_.tail = function(collection) {
+		return g_.clone(collection).splice(1, collection.length);
+	};
+
+
 	/* `all` takes a collection and a predicate and returns true if
-	 * all of the elements return true on the predicate
+	 * all of the elements return true on the predicate.
 	 */
 	g_.all = function(collection, predicate) {
 		return collection.length === filter(collection, predicate).length;
@@ -116,15 +124,31 @@ var g_ = (function() {
 
 
 	/* `any` takes a collection and a predicate and returns true if 
-	 * any of the elements return true on the predicate
+	 * any of the elements return true on the predicate.
 	 */
 	 g_.any = function(collection, predicate) {
 	 	return filter(collection, predicate).length > 0;
 	 };
 
 
+	/* `max` returns the largest number in an array.
+	 */
+	 g_.max = function(collection) {
+	 	var result = 0;
+
+	 	each(collection, function(i) {
+	 		if ( g_.isGreaterThan(collection[i], result) ) {
+	 			result = collection[i];
+	 		}
+	 	});
+
+	 	return result;
+	 };
+
+
 /* Utility
  * ----------------------------------------------------------------*/
+
 
 	/* `identity` returns the value it is passed. This abstraction is
 	 * surprisingly important because, since functional programming
@@ -136,6 +160,16 @@ var g_ = (function() {
 	}
 
 
+	/* `clone` creates a clone of the input array without mutating
+	 * it.
+	 */
+	g_.clone = function(collection) {
+		return collection.slice(0);
+	}
+
+
+	/* `keys` takes an associative array and returns array of keys.
+	 */
 	g_.keys = function(collection) {
 		var result = [];
 
@@ -147,6 +181,9 @@ var g_ = (function() {
 	};
 
 
+	/* `values` takes an associative array and returns array of 
+	 * values.
+	 */
 	g_.values = function(collection) {
 		var result = [];
 
@@ -164,12 +201,18 @@ var g_ = (function() {
  * "predicates."'
  * ----------------------------------------------------------------*/
 
+
 	/* `isExistential` is a boolean function that returns whether an
 	 * element exists (is neither `undefined` nor `null`). Loose
 	 * equality makes this a one-liner.
 	 */
 	g_.isExistential = function(value) {
 		return value != null;
+	};
+
+
+	g_.isTruthy = function(value) {
+		return (value !== false) && g_.isExistential(value);
 	};
 
 
@@ -188,18 +231,17 @@ var g_ = (function() {
 	};
 
 
-	g_.isTruthy = function(value) {
-		return (value !== false) && g_.isExistential(value);
+	g_.isEqual = function(x, y) {
+		return x === y;
+	};
+
+
+	g_.isGreaterThan = function(x, y) {
+		return x > y;
 	};
 
 
 
-/* Return
- * ----------------------------------------------------------------*/
 	return g_;
 
-})();
-
-var myArray = [1, 2, 3];
-var myObj = { name: 'Bob', profession: 'Programmer' };
-var double = function(x) { return x*x; };
+})({});
