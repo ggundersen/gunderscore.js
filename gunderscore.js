@@ -4,8 +4,10 @@
  * ----------------------------------------------------------------*/
 
 
-var anArray = [1, 2, 3];
-var anOject = { name: 'Bob', profession: 'Programmer' };
+var myArray = [1, 2, 3];
+var myObject = { name: 'Bob', profession: 'chef', gender: 'male' };
+var myObject2 = { name: 'Samantha', profession: 'engineer', gender: 'female' };
+var myObject3 = { color: 'blue', shade: 'dark' };
 var doubleX = function(x) { return x * x; };
 
 
@@ -29,10 +31,14 @@ var g_ = (function(g_) {
 	 * function. Any loss in performance can be mitigated or
 	 * regained by a compressor.
 	 */
-	var each = g_.each = function(collection, func) {
-		var i, len;
+	g_.each = function(coll, func) {
+		// Iterate over keys, not the collection itself
+		// This handles both arrays and associative arrays
+		var i = 0,
+			keys = g_.keys(coll),
+			len = keys.length;
 
-		for (i = 0, len = collection.length; i < len; i++) {
+		for (; i < len; i++) {
 			func(i);
 		}
 	};
@@ -40,13 +46,13 @@ var g_ = (function(g_) {
 
 	/* `map` calls a function on every value in a collection,
 	 * returning a collection of results. Notice how it uses `each`;
-	 * we are quickly building upon small abstractions.
+	 * we are building upon small abstractions.
 	 */
-	var map = g_.map = function(collection, func) {
+	g_.map = function(coll, func) {
 		var result = [];
 
-		each(collection, function(i) {
-			result.push( func(collection[i]) );
+		g_.each(coll, function(i) {
+			result.push( func(coll[i]) );
 		});
 		
 		return result;
@@ -56,11 +62,27 @@ var g_ = (function(g_) {
 	/* `reduce` (or `fold`) calls a function on every value in a
 	 * collection, accumulates the result, and returns it.
 	 */
-	var reduce = g_.reduce = function(collection, func) {
+	g_.reduce = function(coll, func) {
 		var result = 0;
 
-		each(collection, function(i) {
-			result += func(collection[i]);
+		g_.each(coll, function(i) {
+			result += func(coll[i]);
+		});
+
+		return result;
+	};
+
+
+	/* `invert` takes an associative array and switches the keys and
+	 * the values.
+	 */
+	g_.invert = function(coll) {
+		var result = {},
+			keys = g_.keys(coll),
+			values = g_.values(coll);
+
+		g_.each(keys, function(i) {
+			result[values[i]] = keys[i];
 		});
 
 		return result;
@@ -70,12 +92,12 @@ var g_ = (function(g_) {
 	/* `filter` calls a predicate function on each item in a
 	 * collection, returning a collection of predicates
 	 */
-	var filter = g_.filter = function(collection, predicate) {
+	g_.filter = function(coll, pred) {
 		var result = [];
 
-		each(collection, function(i) {
-			if ( predicate(collection[i]) ) {
-				result.push( collection[i] );
+		g_.each(coll, function(i) {
+			if ( pred(coll[i]) ) {
+				result.push( coll[i] );
 			}
 		});
 
@@ -86,35 +108,26 @@ var g_ = (function(g_) {
 	/* `find` takes a collection and a predicate and returns the
 	 * first element for which the predicate returns true
 	 */
-	g_.find = function(collection, predicate) {
-		return filter(collection, predicate)[0];
+	g_.find = function(coll, pred) {
+		return g_.filter(coll, pred)[0];
 	};
 
 
 	/* `where` takes an array of objects and returns all of the
 	 * objects that match the criteria.
 	 */
-	g_.where = function() {
-
-	};
-
-
-	/* `extend`
-	 */
-	g_.extend = function() {
-
-	};
+	g_.where = function() { };
 
 
 	/* `not` is the opposite of filter; this feels like it could be
 	 * greatly optimized.
 	 */
-	g_.not = function(collection, predicate) {
+	g_.not = function(coll, pred) {
 		var result = [];
 
-		each(collection, function(i) {
-			if ( !predicate(collection[i]) ) {
-				result.push( collection[i] );
+		g_.each(coll, function(i) {
+			if ( !pred(coll[i]) ) {
+				result.push( coll[i] );
 			}
 		});
 
@@ -125,35 +138,50 @@ var g_ = (function(g_) {
 	/* `tail` creates a new array with the first element from the
 	 * input array removed.
 	 */
-	g_.tail = function(collection) {
-		return g_.clone(collection).splice(1, collection.length);
+	g_.tail = function(coll) {
+		return g_.clone(coll).splice(1, coll.length);
 	};
 
 
 	/* `all` takes a collection and a predicate and returns true if
 	 * all of the elements return true on the predicate.
 	 */
-	g_.all = function(collection, predicate) {
-		return collection.length === filter(collection, predicate).length;
+	g_.all = function(coll, pred) {
+		return coll.length === filter(coll, pred).length;
 	};
 
 
 	/* `any` takes a collection and a predicate and returns true if 
 	 * any of the elements return true on the predicate.
 	 */
-	g_.any = function(collection, predicate) {
-		return filter(collection, predicate).length > 0;
+	g_.any = function(coll, pred) {
+		return g_.filter(coll, pred).length > 0;
 	};
 
 
 	/* `max` returns the largest number in an array.
 	 */
-	g_.max = function(collection) {
+	g_.max = function(coll) {
 	 	var result = 0;
 
-		each(collection, function(i) {
-			if ( g_.isGreaterThan(collection[i], result) ) {
-				result = collection[i];
+		g_.each(coll, function(i) {
+			if ( g_.isGreaterThan(coll[i], result) ) {
+				result = coll[i];
+			}
+		});
+
+		return result;
+	};
+
+
+	/* `max` returns the largest number in an array.
+	 */
+	g_.max = function(coll, func) {
+	 	var result = 0;
+
+		g_.each(coll, function(i) {
+			if ( func(coll[i]) ) {
+				result = coll[i];
 			}
 		});
 
@@ -170,25 +198,53 @@ var g_ = (function(g_) {
 	 * focuses on functions rather than values (for configuration),
 	 * we often need to pass in `identity`.
 	 */
-	g_.identity = function(value) {
-		return value;
-	}
+	g_.identity = function(val) {
+		return val;
+	};
 
 
-	/* `clone` creates a clone of the input array without mutating
-	 * it.
+	/* `constant` is configurable higher-order that returns a function
+	 * that always returns the input.
 	 */
-	g_.clone = function(collection) {
-		return collection.slice(0);
-	}
+	g_.constant = function(constant) {
+		return function() {
+			return constant;
+		};
+	};
 
+
+	/* `range` returns an array of N size, with a configurable start,
+	 * and stop
+	 */
+	g_.range = function(N /*, start, step */) {
+		var result = [],
+			start = (arguments[1]) ? arguments[1] : 0,
+			step = (arguments[2]) ? arguments[2] : 1;
+
+		for (var i = start; i < N; i = i+step) {
+			result.push(i);
+		}
+
+		return result;
+	};
+
+
+	/* `clone` creates a clone of an array without mutating it.
+	 */
+	g_.clone = function(coll) {
+		return coll.slice(0);
+	};
+
+
+	/* Object functions
+ 	 * ------------------------------------------------------------*/
 
 	/* `keys` takes an associative array and returns array of keys.
 	 */
-	g_.keys = function(collection) {
+	g_.keys = function(coll) {
 		var result = [];
 
-		for (key in collection) {
+		for (key in coll) {
 			result.push(key);
 		}
 
@@ -199,12 +255,28 @@ var g_ = (function(g_) {
 	/* `values` takes an associative array and returns array of 
 	 * values.
 	 */
-	g_.values = function(collection) {
+	g_.values = function(coll) {
 		var result = [];
 
-		for (key in collection) {
-			result.push( collection[key] );
+		for (key in coll) {
+			result.push( coll[key] );
 		}
+
+		return result;
+	};
+
+
+	/* `extend` merges two or more associative arrays into a target.
+	 */
+	g_.extend = function(result /*, args */) {
+		var prop,
+			objs = _.tail(arguments);
+
+		g_.each(objs, function(i) {
+			for (prop in objs[i]) {
+				result[prop] = objs[i][prop];
+			}
+		});
 
 		return result;
 	};
@@ -217,32 +289,32 @@ var g_ = (function(g_) {
  * ----------------------------------------------------------------*/
 
 
-	/* `isExistential` is a boolean function that returns whether an
+	/* `exists` is a boolean function that returns whether an
 	 * element exists (is neither `undefined` nor `null`). Loose
 	 * equality makes this a one-liner.
 	 */
-	g_.isExistential = function(value) {
-		return value != null;
+	g_.exists = function(val) {
+		return val != null;
 	};
 
 
-	g_.isTruthy = function(value) {
-		return (value !== false) && g_.isExistential(value);
+	g_.isTruthy = function(val) {
+		return (val !== false) && g_.exists(val);
 	};
 
 
-	g_.isFunction = function(value) {
-		return (typeof value === 'function');
+	g_.isFunction = function(val) {
+		return (typeof val === 'function');
 	};
 
 
-	g_.isNumber = function(value) {
-		return !isNaN(value);
+	g_.isNumber = function(val) {
+		return !isNaN(val);
 	};
 
 
-	g_.isString = function(value) {
-		return (typeof value === 'string');
+	g_.isString = function(val) {
+		return (typeof val === 'string');
 	};
 
 
