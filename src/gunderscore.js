@@ -4,13 +4,6 @@
  * ----------------------------------------------------------------*/
 
 
-var myArray = [1, 2, 3];
-var myObject = { name: 'Bob', profession: 'chef', gender: 'male' };
-var myObject2 = { name: 'Samantha', profession: 'engineer', gender: 'female' };
-var myObject3 = { color: 'blue', shade: 'dark' };
-var doubleX = function(x) { return x * x; };
-
-
 var g_ = (function(g_) {
 
 
@@ -41,6 +34,8 @@ var g_ = (function(g_) {
 		for (; i < len; i++) {
 			func(i);
 		}
+
+		return undefined;
 	};
 
 
@@ -73,22 +68,6 @@ var g_ = (function(g_) {
 	};
 
 
-	/* `invert` takes an associative array and switches the keys and
-	 * the values.
-	 */
-	g_.invert = function(coll) {
-		var result = {},
-			keys = g_.keys(coll),
-			values = g_.values(coll);
-
-		g_.each(keys, function(i) {
-			result[values[i]] = keys[i];
-		});
-
-		return result;
-	};
-
-
 	/* `filter` calls a predicate function on each item in a
 	 * collection, returning a collection of predicates
 	 */
@@ -110,6 +89,22 @@ var g_ = (function(g_) {
 	 */
 	g_.find = function(coll, pred) {
 		return g_.filter(coll, pred)[0];
+	};
+
+
+	/* `invert` takes an associative array and switches the keys and
+	 * the values.
+	 */
+	g_.invert = function(coll) {
+		var result = {},
+			keys = g_.keys(coll),
+			values = g_.values(coll);
+
+		g_.each(keys, function(i) {
+			result[values[i]] = keys[i];
+		});
+
+		return result;
 	};
 
 
