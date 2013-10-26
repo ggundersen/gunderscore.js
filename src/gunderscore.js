@@ -35,7 +35,7 @@ var g_ = (function(g_) {
 			func(i);
 		}
 
-		return undefined;
+		return;
 	};
 
 
@@ -93,13 +93,13 @@ var g_ = (function(g_) {
 	};
 
 
-
-
-
 	/* `invert` takes an associative array and switches the keys and
 	 * the values.
 	 */
 	g_.invert = function(coll) {
+
+		if ( g_.isArray(coll) ) return;
+
 		var result = {},
 			keys   = g_.keys(coll),
 			vals   = g_.vals(coll);
@@ -112,33 +112,21 @@ var g_ = (function(g_) {
 	};
 
 
-	/* `where` takes an array of objects and returns all of the
+	/* TODO: `where` takes an array of objects and returns all of the
 	 * objects that match the criteria.
 	 */
 	g_.where = function() { };
 
 
-	/* `not` is the opposite of filter; this feels like it could be
-	 * greatly optimized.
+	/* `not` is the opposite of filter. This is a nice example of
+	 * functional programming. `not` relies on `filter` which relies
+	 * on `each`. Abstraction upon abstraction. The code is dense,
+	 * but elegant.
 	 */
 	g_.not = function(coll, pred) {
-		var result = [];
-
-		g_.each(coll, function(i) {
-			if ( !pred(coll[i]) ) {
-				result.push( coll[i] );
-			}
+		return g_.filter(coll, function(i) {
+			return !pred(i);
 		});
-
-		return result;
-	};
-
-
-	/* `tail` creates a new array with the first element from the
-	 * input array removed.
-	 */
-	g_.tail = function(coll) {
-		return g_.clone(coll).splice(1, coll.length);
 	};
 
 
@@ -158,6 +146,21 @@ var g_ = (function(g_) {
 	};
 
 
+	/* `tail` creates a new array with the first element from the
+	 * input array removed.
+	 */
+	g_.tail = function(coll) {
+		if ( !g_.isArray(coll) ) return;
+
+		return g_.clone(coll).splice(1, coll.length);
+	};
+
+
+	g_.first = function(coll) {
+
+	};
+
+
 	/* `max` returns the largest number in an array.
 	 */
 	g_.max = function(coll, pred) {
@@ -173,7 +176,6 @@ var g_ = (function(g_) {
 
 		return result;
 	};
-
 
 
 	/* `min` returns the smallest number in an array.
@@ -212,7 +214,7 @@ var g_ = (function(g_) {
 	g_.times = function(n, func) {
 		g_.each( g_.range(n), func );
 
-		return undefined;
+		return;
 	};
 
 	/* `constant` is configurable, higher-order that returns a function
@@ -245,11 +247,12 @@ var g_ = (function(g_) {
 	 * without mutating the input.
 	 */
 	g_.clone = function(coll) {
+		// TODO: Add `deep copy` functionality?
 		// Arrays are Objects; perform this check first.
 		if ( g_.isArray(coll) ) return coll.slice(0);
 		if ( g_.isObject(coll) ) return g_.extend({}, coll);
 
-		return undefined;
+		return;
 	};
 
 
@@ -304,7 +307,33 @@ var g_ = (function(g_) {
 	 */
 	g_.has = function(obj, key) {
 		return obj.hasOwnProperty(key);
+	};
+
+
+	/* `memoize` memoizes a function.
+	 */
+	g_.memoize = function(func) {
+		var cache = [];
+
+		return function(a, b) {
+
+		};
 	}
+
+	/*
+	var add = function(a, b) {
+		console.log('hello');
+		return a + b;
+	};
+
+	var adder  = g_.memoize(add);
+	var adder2 = g_.memoize(add);
+
+	adder(1, 2)  // 'hello' // 3
+	adder(1, 2)  // 3
+	adder(2, 1)  // 'hello' // 3
+	adder2(1, 2) // 'hello' // 3
+	*/
 
 
 /* Predicates
