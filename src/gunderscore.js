@@ -241,10 +241,15 @@ var g_ = (function(g_) {
 	};
 
 
-	/* `clone` creates a clone of an array without mutating it.
+	/* `clone` creates a clone of an array or associative array
+	 * without mutating the input.
 	 */
 	g_.clone = function(coll) {
-		return coll.slice(0);
+		// Arrays are Objects; perform this check first.
+		if ( g_.isArray(coll) ) return coll.slice(0);
+		if ( g_.isObject(coll) ) return g_.extend({}, coll);
+
+		return undefined;
 	};
 
 
@@ -280,8 +285,9 @@ var g_ = (function(g_) {
 
 	/* `extend` merges two or more associative arrays into a target.
 	 */
-	g_.extend = function(result /*, args */) {
+	g_.extend = function(source /*, args */) {
 		var prop,
+			result = source,
 			objs = _.tail(arguments);
 
 		g_.each(objs, function(i) {
@@ -292,6 +298,13 @@ var g_ = (function(g_) {
 
 		return result;
 	};
+
+
+	/* `has` is a convenience wrapper for `hasOwnProperty`.
+	 */
+	g_.has = function(obj, key) {
+		return obj.hasOwnProperty(key);
+	}
 
 
 /* Predicates
@@ -315,6 +328,11 @@ var g_ = (function(g_) {
 	};
 
 
+	g_.isFalsy = function(val) {
+		return !g_.isTruthy(val);
+	};
+
+
 	g_.isFunction = function(val) {
 		return typeof val === 'function';
 	};
@@ -335,7 +353,14 @@ var g_ = (function(g_) {
 	};
 
 
-	g_.isEqual = function(x, y) { };
+	g_.isObject = function(obj) {
+		return obj instanceof Object;
+	};
+
+
+	g_.isEqual = function(x, y) {
+		return x === y;
+	};
 
 
 	g_.isGreaterThan = function(x, y) {
