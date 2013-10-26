@@ -1,13 +1,22 @@
+// Expose onto window
+var result = undefined;
+var arr = [1, 2, 3];
+var obj = {
+	'foo': 'bar',
+	'qux': 'baz'
+};
+var str = 'this is a string';
+
 describe('The `gunderscore` module', function() {
 	var arr, obj, result, str;
 
 	beforeEach(function() {
-		result = undefined;
-		arr = [1, 2, 3];
+		arr = [1, 2, 3];	
 		obj = {
 			'foo': 'bar',
 			'qux': 'baz'
 		};
+		result = undefined;
 		str = 'this is a string';
 	});
 
@@ -78,6 +87,10 @@ describe('The `gunderscore` module', function() {
 		it('calls the passed in function on every item in the collection', function() {
 			g_.map(arr, mapSpy);
 			expect(mapSpy.calls.length).toBe(arr.length);
+		});
+		it('calls the passed in function on every item in the collection', function() {
+			g_.map(obj, mapSpy);
+			expect(mapSpy.calls.length).toBe(g_.keys(obj).length);
 		});
 	});
 
