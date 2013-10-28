@@ -271,6 +271,7 @@ var g_ = (function(g_) {
 			if ( !cache[args] ) {
 				cache[args] = func.apply(root, arguments);
 			}
+
 			return cache[args];
 		};
 	};
