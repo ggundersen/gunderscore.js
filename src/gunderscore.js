@@ -7,6 +7,8 @@
 var g_ = (function(g_) {
 
 
+	var root = this;
+
 /* Collection functions
  *
  * @Fogus: 'Functional programming is extremely useful for tasks
@@ -256,6 +258,24 @@ var g_ = (function(g_) {
 	};
 
 
+	/* `memoize` builds a cache of function calls and return values,
+	 * and only executes `func` if it has not done so previously.
+	 */
+	g_.memoize = function(func) {
+		var cache = {};
+
+		return function(/* args */) {
+			// This converts `arguments` to a stringified array.
+			var args = Array.prototype.slice.call(arguments, 0).toString();
+
+			if ( !cache[args] ) {
+				cache[args] = func.apply(root, arguments);
+			}
+			return cache[args];
+		};
+	};
+
+
 	/* Object functions
  	 * ------------------------------------------------------------*/
 
@@ -313,36 +333,6 @@ var g_ = (function(g_) {
 	g_.has = function(obj, key) {
 		return obj.hasOwnProperty(key);
 	};
-
-
-	g_.memoize = function(func) {
-		var cache = {};
-
-		return function(a, b) {
-			var args = [a, b].toString();
-
-			if ( !cache[args] ) {
-				cache[args] = func(a, b);
-			}
-			return cache[args];
-		};
-	};
-
-
-	g_.add = function(a, b) {
-		console.log('hello');
-		return a + b;
-	};
-
-
-	g_.adder  = g_.memoize(g_.add);
-	g_.adder2 = g_.memoize(g_.add);
-
-	//adder(1, 2)  // 'hello' // 3
-	//adder(1, 2)  // 3
-	//adder(2, 1)  // 'hello' // 3
-	//adder2(1, 2) // 'hello' // 3
-	//*/
 
 
 /* Predicates
