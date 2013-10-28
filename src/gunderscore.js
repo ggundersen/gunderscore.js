@@ -319,12 +319,12 @@ var g_ = (function(g_) {
 		var cache = {};
 
 		return function(a, b) {
-			var argsToProp = a + ',' + b;
-			
-			if ( !cache[argsToProp] ) {
-				cache[argsToProp] = func(a, b);
+			var args = [a, b].toString();
+
+			if ( !cache[args] ) {
+				cache[args] = func(a, b);
 			}
-			return cache[argsToProp];
+			return cache[args];
 		};
 	};
 
