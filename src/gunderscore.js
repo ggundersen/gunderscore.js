@@ -303,6 +303,11 @@ var g_ = (function(g_) {
 	};
 
 
+	/* `toArray` - What is the use case for this?
+	 */
+	g_.toArray = function() { };
+
+
 	/* `has` is a convenience wrapper for `hasOwnProperty`.
 	 */
 	g_.has = function(obj, key) {
@@ -310,30 +315,34 @@ var g_ = (function(g_) {
 	};
 
 
-	/* `memoize` memoizes a function.
-	 */
 	g_.memoize = function(func) {
-		var cache = [];
+		var cache = {};
 
 		return function(a, b) {
-
+			var argsToProp = a + ',' + b;
+			
+			if ( !cache[argsToProp] ) {
+				cache[argsToProp] = func(a, b);
+			}
+			return cache[argsToProp];
 		};
-	}
+	};
 
-	/*
-	var add = function(a, b) {
+
+	g_.add = function(a, b) {
 		console.log('hello');
 		return a + b;
 	};
 
-	var adder  = g_.memoize(add);
-	var adder2 = g_.memoize(add);
 
-	adder(1, 2)  // 'hello' // 3
-	adder(1, 2)  // 3
-	adder(2, 1)  // 'hello' // 3
-	adder2(1, 2) // 'hello' // 3
-	*/
+	g_.adder  = g_.memoize(g_.add);
+	g_.adder2 = g_.memoize(g_.add);
+
+	//adder(1, 2)  // 'hello' // 3
+	//adder(1, 2)  // 3
+	//adder(2, 1)  // 'hello' // 3
+	//adder2(1, 2) // 'hello' // 3
+	//*/
 
 
 /* Predicates
