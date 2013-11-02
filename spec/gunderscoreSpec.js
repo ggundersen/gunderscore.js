@@ -16,7 +16,6 @@ describe('The `gunderscore` module', function() {
 			'foo': 'bar',
 			'qux': 'baz'
 		};
-		result = undefined;
 		str = 'this is a string';
 	});
 
@@ -38,22 +37,21 @@ describe('The `gunderscore` module', function() {
 			expect(typeof g_.each).toBe('function');
 		});
 		it('returns `undefined` (is executed for its side effects)', function() {
-			result = g_.each(arr, g_.identity);
+			var result = g_.each([1,2,3], g_.identity);
 			expect(typeof result).toBe('undefined');
 		});
-		it('calls the passed in function on every item in the passed in collection', function() {
+		it('calls the applied function on every item in an applied array', function() {
+			var arr = _.range(Math.random() * 100);
 			g_.each(arr, eachSpy);
 			expect(eachSpy.calls.length).toEqual(arr.length);
 		});
-		it('handles arrays', function() {
-			g_.each(arr, eachSpy);
-			expect(eachSpy.calls.length).toEqual(arr.length);	
-		});
-		it('handles objects', function() {
+		it('calls the applied function on every item in an applied object', function() {
+			var obj = { 'key': Math.random(), 'val': Math.random() };
 			g_.each(obj, eachSpy);
 			expect(eachSpy.calls.length).toEqual(g_.keys(obj).length);	
 		});
-		it('handles strings', function() {
+		it('calls the applied function on every item in an applied string', function() {
+			var str = g_.toHexidecimal( Math.random() );
 			g_.each(str, eachSpy);
 			expect(eachSpy.calls.length).toEqual(str.length);	
 		});
@@ -73,15 +71,15 @@ describe('The `gunderscore` module', function() {
 			expect(typeof g_.map).toBe('function');
 		});
 		it('returns an array', function() {
-			result = g_.map();
+			var result = g_.map();
 			expect(result instanceof Array).toBeTruthy();
 		});
 		it('returns an empty array if passed no arguments', function() {
-			result = g_.map();
+			var result = g_.map();
 			expect(result.length).toBe(0);
 		});
 		it('returns an array of the same length as the number of items in the collection passed in', function() {
-			result = g_.map(arr, g_.identity);
+			var result = g_.map(arr, g_.identity);
 			expect(result.length).toBe(arr.length);
 		});
 		it('calls the passed in function on every item in the collection', function() {

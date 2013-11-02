@@ -29,12 +29,21 @@ var g_ = (function(g_) {
 	g_.each = function(coll, func) {
 		// Iterate over keys, not the collection itself
 		// This handles arrays, associative arrays, and strings
-		var i    = 0,
-			keys = g_.keys(coll),
-			len  = keys.length;
+		var i = 0,
+			keys,
+			len;
 
-		for (; i < len; i++) {
-			func(i);
+		if ( g_.isArray(coll) ) {
+			len = coll.length;
+			for ( ; i < len; i++) {
+				func(i);
+			}
+		} else {
+			keys = g_.keys(coll);
+			len  = keys.length;
+			for ( ; i < len; i++) {
+				func(keys[i]);
+			}
 		}
 
 		return;
@@ -311,7 +320,7 @@ var g_ = (function(g_) {
 	 */
 	g_.extend = function(source /*, args */) {
 		var prop,
-			result = source,
+			result = source, // Do not mutate applied object.
 			objs = _.tail(arguments);
 
 		g_.each(objs, function(i) {
@@ -324,9 +333,22 @@ var g_ = (function(g_) {
 	};
 
 
-	/* `toArray` - What is the use case for this?
+	/* `toArray` turns array-like objects (`arguments`, strings)
+	 * into arrays
 	 */
-	g_.toArray = function() { };
+	g_.toArray = function(obj) {
+		//return g_.map(obj, function(k, v) {
+		//	return [v]
+		//});
+	};
+
+
+	/* `toHexidecimal` returns a hexidecimal number, based on the
+	 * number `n` applied.
+	 */
+	g_.toHexidecimal = function(n) {
+		return n.toString(16);
+	};
 
 
 	/* `has` is a convenience wrapper for `hasOwnProperty`.
