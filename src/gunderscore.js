@@ -30,6 +30,8 @@ var g_ = (function() {
 	 * regained by a compressor.
 	 */
 	g_.each = function(coll, func) {
+		if ( !g_.exists(coll) ) return;
+
 		var i = 0,
 			keys,
 			len;
@@ -106,6 +108,21 @@ var g_ = (function() {
 	};
 
 
+	/* `where` takes an array of objects and returns all of the
+	 * objects that match the criteria.
+	 */
+	g_.where = function(coll, crit) {
+		return g_.filter(coll, function(item) {
+			for (key in crit) {
+				if (crit[key] !== item[key]) {
+					return false;
+				}
+			}
+			return true;
+		});
+	};
+
+
 	/* `select` takes an array of objects and returns the values of
 	 * each object's `key` key.
 	 */
@@ -133,12 +150,6 @@ var g_ = (function() {
 
 		return result;
 	};
-
-
-	/* TODO: `where` takes an array of objects and returns all of the
-	 * objects that match the criteria.
-	 */
-	g_.where = function() { };
 
 
 	/* `not` is the opposite of filter. This is a nice example of
@@ -236,7 +247,6 @@ var g_ = (function() {
 	 */
 	g_.times = function(n, func) {
 		g_.each( g_.range(n), func );
-
 		return;
 	};
 

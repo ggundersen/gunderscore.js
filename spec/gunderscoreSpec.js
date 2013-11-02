@@ -10,7 +10,17 @@ var obj2 = {
 	'jor': '2'
 };
 
-var stooges = [{name : 'moe', age : 40}, {name : 'larry', age : 50}, {name : 'curly', age : 60}, {test: 'test'}];
+var stooges = [
+	{name : 'moe', age : 40},
+	{name : 'larry', age : 50},
+	{name : 'curly', age : 60},
+];
+
+var stooges2 = [
+	{name : 'moe', age : 40, lastname : 'ginger'},
+	{name : 'moe', age : 40, lastname : 'smokey'},
+	{name : 'curly', age : 60},
+];
 
 var str = 'this is a string';
 
