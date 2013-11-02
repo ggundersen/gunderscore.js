@@ -75,7 +75,6 @@ var g_ = (function() {
 		var result = 0;
 
 		g_.each(coll, function(i) {
-			console.log(coll);
 			result += func(coll[i]);
 		});
 
