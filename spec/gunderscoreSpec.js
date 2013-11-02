@@ -37,7 +37,7 @@ describe('The `gunderscore` module', function() {
 	});
 
 	it('is an object', function() {
-		expect(typeof g_).toBe('object');
+		expect(typeof g_).toBe('function');
 	});
 
 

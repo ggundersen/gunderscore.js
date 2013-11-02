@@ -4,12 +4,18 @@
  * ----------------------------------------------------------------*/
 
 
-var g_ = (function() {
+(function() {
 
-
-/* `gnderscore` is an object.
+/* `g_` is a function, available for chaining, and exposed on the 
+ * global object.
  * ----------------------------------------------------------------*/
-	var g_ = {};
+	
+
+	// TODO: Make `g_` chainable.
+	var g_ = function() { };
+
+	// Expose on the global object.
+	this.g_ = g_;
 
 
 /* Collection functions
@@ -29,7 +35,7 @@ var g_ = (function() {
 	 * function. Any loss in performance can be mitigated or
 	 * regained by a compressor.
 	 */
-	g_.each = function(coll, func) {
+	g_.each = function(coll, func, that) {
 		if ( !g_.exists(coll) ) return;
 
 		var i = 0,
@@ -40,14 +46,14 @@ var g_ = (function() {
 		if ( g_.isArray(coll) || g_.isString(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
-				func(i);
+				func.call(that, i);
 			}
 		// Associative arrays
 		} else {
 			keys = g_.keys(coll);
 			len  = keys.length;
 			for ( ; i < len; i++) {
-				func(keys[i]);
+				func.call(that, keys[i]);
 			}
 		}
 
@@ -59,11 +65,11 @@ var g_ = (function() {
 	 * returning an array of results. Notice how it uses `each`; we
 	 * are building upon small abstractions.
 	 */
-	g_.map = function(coll, func) {
+	g_.map = function(coll, func, that) {
 		var result = [];
 
 		g_.each(coll, function(i) {
-			result.push( func(coll[i]) );
+			result.push( func.call(that, coll[i]));
 		});
 		
 		return result;
@@ -73,11 +79,11 @@ var g_ = (function() {
 	/* `reduce` calls a function on every value in a collection,
 	 * accumulates the result, and returns it.
 	 */
-	g_.reduce = function(coll, func) {
+	g_.reduce = function(coll, func, that) {
 		var result = 0;
 
 		g_.each(coll, function(i) {
-			result += func(coll[i]);
+			result += func.call(that, coll[i]);
 		});
 
 		return result;
@@ -87,11 +93,11 @@ var g_ = (function() {
 	/* `filter` calls a predicate function on each item in a
 	 * collection, returning a collection of predicates.
 	 */
-	g_.filter = function(coll, pred) {
+	g_.filter = function(coll, pred, that) {
 		var result = [];
 
 		g_.each(coll, function(i) {
-			if ( pred(coll[i]) ) {
+			if ( pred.call(that, coll[i]) ) {
 				result.push( coll[i] );
 			}
 		});
@@ -103,8 +109,8 @@ var g_ = (function() {
 	/* `find` takes a collection and a predicate and returns the
 	 * first element for which the predicate returns true.
 	 */
-	g_.find = function(coll, pred) {
-		return g_.filter(coll, pred)[0];
+	g_.find = function(coll, pred, that) {
+		return g_.filter(coll, pred, that)[0];
 	};
 
 
@@ -190,8 +196,11 @@ var g_ = (function() {
 	};
 
 
+	/* `first` selects the first item in a collection.
+	 */
 	g_.first = function(coll) {
-
+		if ( g_.isArray(coll) || g_.isString(coll) ) return coll[0];
+		else return coll[ g_.keys(coll)[0] ];
 	};
 
 
@@ -247,6 +256,7 @@ var g_ = (function() {
 	 */
 	g_.times = function(n, func) {
 		g_.each( g_.range(n), func );
+		
 		return;
 	};
 
@@ -280,12 +290,9 @@ var g_ = (function() {
 	 * without mutating the input.
 	 */
 	g_.clone = function(coll) {
-		// TODO: Add `deep copy` functionality?
-		// Arrays are Objects; perform this check first.
-		if ( g_.isArray(coll) ) return coll.slice(0);
+		// TODO: Add `deep copy` functionality.
+		if ( g_.isArray(coll) )  return coll.slice(0);
 		if ( g_.isObject(coll) ) return g_.extend({}, coll);
-
-		return;
 	};
 
 
@@ -297,7 +304,7 @@ var g_ = (function() {
 
 		return function(/* args */) {
 			// This converts `arguments` to a stringified array.
-			var args = Array.prototype.slice.call(arguments, 0).toString();
+			var args = g_.toArray(arguments).toString();
 
 			if ( !cache[args] ) {
 				cache[args] = func.apply(func, arguments);
@@ -305,6 +312,25 @@ var g_ = (function() {
 
 			return cache[args];
 		};
+	};
+
+
+	/* Conversion functions
+ 	 * ------------------------------------------------------------*/
+
+	/* `toArray` turns array-like objects (`arguments`, strings)
+	 * into arrays
+	 */
+	g_.toArray = function(args) {
+		return Array.prototype.slice.call(args, 0);
+	};
+
+
+	/* `toHexidecimal` returns a hexidecimal number, based on the
+	 * number `n` applied.
+	 */
+	g_.toHexidecimal = function(n) {
+		return n.toString(16);
 	};
 
 
@@ -352,24 +378,6 @@ var g_ = (function() {
 		});
 
 		return result;
-	};
-
-
-	/* `toArray` turns array-like objects (`arguments`, strings)
-	 * into arrays
-	 */
-	g_.toArray = function(obj) {
-		//return g_.map(obj, function(k, v) {
-		//	return [v]
-		//});
-	};
-
-
-	/* `toHexidecimal` returns a hexidecimal number, based on the
-	 * number `n` applied.
-	 */
-	g_.toHexidecimal = function(n) {
-		return n.toString(16);
 	};
 
 
@@ -439,11 +447,5 @@ var g_ = (function() {
 	g_.isGreaterThan = function(x, y) {
 		return x > y;
 	};
-
-
-/* Return
- * ----------------------------------------------------------------*/
-
-	return g_;
 
 })();
