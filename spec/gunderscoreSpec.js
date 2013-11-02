@@ -5,6 +5,13 @@ var obj = {
 	'foo': 'bar',
 	'qux': 'baz'
 };
+var obj2 = {
+	'foo': '1',
+	'jor': '2'
+};
+
+var stooges = [{name : 'moe', age : 40}, {name : 'larry', age : 50}, {name : 'curly', age : 60}, {test: 'test'}];
+
 var str = 'this is a string';
 
 describe('The `gunderscore` module', function() {

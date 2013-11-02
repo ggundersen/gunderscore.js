@@ -4,10 +4,13 @@
  * ----------------------------------------------------------------*/
 
 
-var g_ = (function(g_) {
+var g_ = (function() {
 
 
-	var root = this;
+/* `gnderscore` is an object.
+ * ----------------------------------------------------------------*/
+	var g_ = {};
+
 
 /* Collection functions
  *
@@ -27,17 +30,17 @@ var g_ = (function(g_) {
 	 * regained by a compressor.
 	 */
 	g_.each = function(coll, func) {
-		// Iterate over keys, not the collection itself
-		// This handles arrays, associative arrays, and strings
 		var i = 0,
 			keys,
 			len;
 
-		if ( g_.isArray(coll) ) {
+		// Arrays and strings
+		if ( g_.isArray(coll) || g_.isString(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
 				func(i);
 			}
+		// Associative arrays
 		} else {
 			keys = g_.keys(coll);
 			len  = keys.length;
@@ -101,6 +104,16 @@ var g_ = (function(g_) {
 	 */
 	g_.find = function(coll, pred) {
 		return g_.filter(coll, pred)[0];
+	};
+
+
+	/* `select` takes an array of objects and returns the values of
+	 * each object's `key` key.
+	 */
+	g_.select = function(coll, key) {
+		return g_.map(coll, function(item) {
+			return item[key];
+		});
 	};
 
 
@@ -206,7 +219,7 @@ var g_ = (function(g_) {
 	};
 
 
-/* Utility
+/* Utility functions
  * ----------------------------------------------------------------*/
 
 
@@ -278,7 +291,7 @@ var g_ = (function(g_) {
 			var args = Array.prototype.slice.call(arguments, 0).toString();
 
 			if ( !cache[args] ) {
-				cache[args] = func.apply(root, arguments);
+				cache[args] = func.apply(func, arguments);
 			}
 
 			return cache[args];
@@ -419,7 +432,9 @@ var g_ = (function(g_) {
 	};
 
 
+/* Return
+ * ----------------------------------------------------------------*/
 
 	return g_;
 
-})({});
+})();
