@@ -1,29 +1,3 @@
-// Expose onto window
-var result = undefined;
-var arr = [1, 2, 3];
-var obj = {
-	'foo': 'bar',
-	'qux': 'baz'
-};
-var obj2 = {
-	'foo': '1',
-	'jor': '2'
-};
-
-var stooges = [
-	{name : 'moe', age : 40},
-	{name : 'larry', age : 50},
-	{name : 'curly', age : 60},
-];
-
-var stooges2 = [
-	{name : 'moe', age : 40, lastname : 'ginger'},
-	{name : 'moe', age : 40, lastname : 'smokey'},
-	{name : 'curly', age : 60},
-];
-
-var str = 'this is a string';
-
 describe('The `gunderscore` module', function() {
 	var arr, obj, result, str;
 
@@ -37,7 +11,7 @@ describe('The `gunderscore` module', function() {
 	});
 
 	it('is an object', function() {
-		expect(typeof g_).toBe('function');
+		expect(typeof g_).toBe('object');
 	});
 
 
@@ -58,7 +32,7 @@ describe('The `gunderscore` module', function() {
 			expect(typeof result).toBe('undefined');
 		});
 		it('calls the applied function on every item in an applied array', function() {
-			var arr = _.range(Math.random() * 100);
+			var arr = [1,2,3]; //Mox.arr();
 			g_.each(arr, eachSpy);
 			expect(eachSpy.calls.length).toEqual(arr.length);
 		});
