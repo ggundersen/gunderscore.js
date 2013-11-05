@@ -1,21 +1,16 @@
 /* 
- * gunderscore.js
+ * gunderscore
  * 2013-10-15
  * ----------------------------------------------------------------*/
 
 
 (function() {
 
-/* `g_` is a function, available for chaining, and exposed on the 
- * global object.
+/* `g_`, the `gunderscore` object
  * ----------------------------------------------------------------*/
-	
 
-	// TODO: Make `g_` chainable.
-	var g_ = function() { };
 
-	// Expose on the global object.
-	this.g_ = g_;
+	this.g_ = g_ = {};
 
 
 /* Collection functions
@@ -29,31 +24,28 @@
 
 
 	/* `each` is an immutable iterator. It is the quintessential
-	 * example of a functional style. Note that its implementation
-	 * uses a `for` loop. Functional programming does not eliminate
-	 * imperative concepts; rather, it abstracts them away with a
-	 * function. Any loss in performance can be mitigated or
-	 * regained by a compressor.
+	 * example of a functional style. Note that it uses a `for` loop.
+	 * Functional programming does not eliminate imperative concepts;
+	 * rather, it abstracts them away with functions. And any loss in
+	 * performance can be mitigated or regained by a compressor.
 	 */
-	g_.each = function(coll, func, that) {
+	g_.each = function(coll, func, context) {
 		if ( !g_.exists(coll) ) return;
 
 		var i = 0,
 			keys,
 			len;
 
-		// Arrays and strings
 		if ( g_.isArray(coll) || g_.isString(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
-				func.call(that, i);
+				func.call( context, coll[i], i, coll );
 			}
-		// Associative arrays
 		} else {
 			keys = g_.keys(coll);
 			len  = keys.length;
 			for ( ; i < len; i++) {
-				func.call(that, keys[i]);
+				func.call( context, coll[keys[i]], i, coll );
 			}
 		}
 
@@ -62,8 +54,9 @@
 
 
 	/* `map` calls a function on every value in a collection,
-	 * returning an array of results. Notice how it uses `each`; we
-	 * are building upon small abstractions.
+	 * returning an array of results. Notice how it uses `each`.
+	 * Functional programming builds bigger abstractions by
+	 * 'snapping' smaller abstractions together.
 	 */
 	g_.map = function(coll, func, that) {
 		var result = [];
@@ -79,14 +72,21 @@
 	/* `reduce` calls a function on every value in a collection,
 	 * accumulates the result, and returns it.
 	 */
-	g_.reduce = function(coll, func, that) {
-		var result = 0;
+	g_.reduce = function(coll, func, seed) {
+		var result = 0,
+			noSeed = arguments.length < 3;
 
 		g_.each(coll, function(i) {
-			result += func.call(that, coll[i]);
+			if (noSeed) {
+				seed = value;
+				noSeed = false;
+			} else {
+				seed = func.call(this, seed, value);
+			}
+			//result += func.call(seed, coll[i]);
 		});
 
-		return result;
+		return seed = result;
 	};
 
 
