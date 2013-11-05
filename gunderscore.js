@@ -100,7 +100,7 @@
 	var legacyReduce = function(coll, func, that) {
 		var result = 0;
 
-		g_.each(coll, function(i) {
+		each(coll, function(i) {
 			result += func.call(that, coll[i]);
 		});
 
@@ -113,7 +113,7 @@
 	g_.filter = function(coll, pred, that) {
 		var result = [];
 
-		g_.each(coll, function(i) {
+		each(coll, function(i) {
 			if ( pred.call(that, coll[i]) ) {
 				result.push( coll[i] );
 			}
@@ -163,7 +163,7 @@
 			keys   = g_.keys(coll),
 			vals   = g_.vals(coll);
 
-		g_.each(keys, function(i) {
+		each(keys, function(i) {
 			result[vals[i]] = keys[i];
 		});
 
@@ -218,7 +218,7 @@
 
 		if (!g_.exists(coll) || !g_.isArray(coll)) return;
 
-		g_.each(coll, function(i) {
+		each(coll, function(i) {
 			if ( g_.isGreaterThan(coll[i], result) ) {
 				result = coll[i];
 			}
@@ -234,7 +234,7 @@
 
 		if (!g_.exists(coll) || !g_.isArray(coll)) return;
 
-		g_.each(coll, function(i) {
+		each(coll, function(i) {
 			if ( !g_.isGreaterThan(coll[i], result) ) {
 				result = coll[i];
 			}
@@ -259,7 +259,7 @@
 
 	// `times` executes `func` `n` times.
 	g_.times = function(n, func) {
-		g_.each( g_.range(n), func );
+		each( g_.range(n), func );
 		
 		return;
 	};
@@ -366,7 +366,7 @@
 			result = source, // Do not mutate applied object.
 			objs = _.tail(arguments);
 
-		g_.each(objs, function(i) {
+		each(objs, function(i) {
 			for (prop in objs[i]) {
 				result[prop] = objs[i][prop];
 			}
