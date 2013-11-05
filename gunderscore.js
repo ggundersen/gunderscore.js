@@ -108,6 +108,29 @@
 	};
 
 
+	// `curry` takes a function `func` and allows partial
+	// application of its named arguments.
+	// TODO: How can I generalize this?
+
+	/*
+	var add = g_.curry(function(a, b) {
+		return a + b;
+	});
+
+	add15 = add(15);
+
+	add15(27) == 42;
+	*/
+
+	var curry = g_.curry = function(func) {
+		return function(arg1) {
+			return function(arg2) {
+				return func(arg1, arg2);
+			};
+		};
+	};
+
+
 	// `filter` calls a predicate function on each item in a
 	// collection, returning a collection of predicates.
 	var filter = g_.filter = function(coll, pred) {
@@ -481,6 +504,20 @@
 
 })();
 
+var add = g_.curry(function(a, b) {
+	return a + b;
+});
 
-var result = g_.pipeline(42, function(x) { return -x });
-console.log(result);
+var add15 = add(15);
+
+console.log(  add15(5)  );
+
+
+
+
+
+
+
+
+
+
