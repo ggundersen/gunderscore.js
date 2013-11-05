@@ -26,7 +26,7 @@
 	// Functional programming does not eliminate imperative concepts;
 	// rather, it abstracts them away with functions. And any loss in
 	// performance can be mitigated or regained by a compressor.
-	g_.each = function(coll, func, context) {
+	var each = g_.each = function(coll, func, context) {
 		if ( !g_.exists(coll) ) return;
 
 		var i = 0,
@@ -56,10 +56,10 @@
 	// returning an array of results. Notice how it uses `each`.
 	// Functional programming builds bigger abstractions by
 	// 'snapping' smaller abstractions together.
-	g_.map = function(coll, func, that) {
+	var map = g_.map = function(coll, func, that) {
 		var result = [];
 
-		g_.each(coll, function(i) {
+		each(coll, function(i) {
 			result.push( func.call(that, coll[i]));
 		});
 		
@@ -77,7 +77,7 @@
 		var result = 0,
 			noSeed = arguments.length < 3;
 
-		each(coll, function(item, i) {
+		/*each(coll, function(item, i) {
 			if (noSeed) {
 				// If no seed value is provided, use the value of the
 				// first item in the list.
@@ -89,6 +89,10 @@
 				// value of the previous `seed`s.
 				seed = func.call( context, seed, item, i);
 			}
+		});*/
+
+		each(coll, function(item, i) {
+			item = func.call( context, item, i);
 		});
 
 		return seed;
