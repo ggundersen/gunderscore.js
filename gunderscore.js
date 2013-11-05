@@ -7,7 +7,7 @@
 (function() {
 
 
-	// `g_`, the `gunderscore` object
+	// The `gunderscore` object
 	this.g_ = g_ = {};
 
 
@@ -20,12 +20,13 @@
  * set of functions.'
  * --------------------------------------------------------------- */
 
+
 	// `each` is an immutable iterator. It is the quintessential
 	// example of a functional style. Note that it uses a `for` loop.
 	// Functional programming does not eliminate imperative concepts;
 	// rather, it abstracts them away with functions. And any loss in
 	// performance can be mitigated or regained by a compressor.
-	g_.each = function(coll, func, that) {
+	g_.each = function(coll, func, context) {
 		if ( !g_.exists(coll) ) return;
 
 		var i = 0,
@@ -35,13 +36,15 @@
 		if ( g_.isArray(coll) || g_.isString(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
-				func.call(that, i);
+				// Use call to allow for function context
+				// configuration.
+				func.call( context, coll[i], i );
 			}
 		} else {
 			keys = g_.keys(coll);
 			len  = keys.length;
 			for ( ; i < len; i++) {
-				func.call(that, keys[i]);
+				func.call( context, coll[keys[i]], i );
 			}
 		}
 
@@ -245,6 +248,7 @@
 
 /* Utility functions
  * --------------------------------------------------------------- */
+
 
 	// `identity` returns the value it is passed. This abstraction is
 	// surprisingly important because, since functional programming
