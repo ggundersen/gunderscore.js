@@ -122,6 +122,10 @@
 	add15(27) == 42;
 	*/
 
+	// The most naive implementation. Basically, `curry` just forces
+	// each returned function to call only the first argument applied.
+	// The question is, how can we do this for an arbitrary number
+	// of applied arguments?
 	var curry = g_.curry = function(func) {
 		return function(arg1) {
 			return function(arg2) {
