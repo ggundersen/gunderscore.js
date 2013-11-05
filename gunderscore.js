@@ -33,7 +33,7 @@
 			keys,
 			len;
 
-		if ( g_.isArray(coll) || g_.isString(coll) ) {
+		if ( isArray(coll) || isString(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
 				// Use call to allow for function context
@@ -198,10 +198,10 @@
 
 	// `tail` creates a new array with the first element from the
 	// input array removed.
-	g_.tail = function(coll) {
-		if ( !g_.isArray(coll) ) return;
-
-		return g_.clone(coll).splice(1, coll.length);
+	var tail = g_.tail = function(coll) {
+		// Why not `return coll.slice(1)`? See:
+		// http://stackoverflow.com/questions/7056925/
+		return Array.prototype.slice.call(coll, 1);
 	};
 
 
@@ -320,14 +320,14 @@
 
 	// `toArray` turns array-like objects (`arguments`, strings)
 	// into arrays
-	g_.toArray = function(args) {
+	var toArray = g_.toArray = function(args) {
 		return Array.prototype.slice.call(args, 0);
 	};
 
 
 	// `toHexidecimal` returns a hexidecimal number, based on the
 	// number `n` applied.
-	g_.toHexidecimal = function(n) {
+	var toHexidecimal = g_.toHexidecimal = function(n) {
 		return n.toString(16);
 	};
 
@@ -336,7 +336,7 @@
  	 * ---------------- */
 
 	// `keys` takes an associative array and returns array of keys.
-	g_.keys = function(coll) {
+	var keys = g_.keys = function(coll) {
 		var result = [];
 
 		for (key in coll) {
@@ -349,7 +349,7 @@
 
 	// `values` takes an associative array and returns array of 
 	// values.
-	g_.vals = function(coll) {
+	var vals = g_.vals = function(coll) {
 		var result = [];
 
 		for (key in coll) {
@@ -364,7 +364,7 @@
 	g_.extend = function(source /*, args */) {
 		var prop,
 			result = source, // Do not mutate applied object.
-			objs = _.tail(arguments);
+			objs = g_.tail(arguments);
 
 		each(objs, function(i) {
 			for (prop in objs[i]) {
@@ -386,60 +386,66 @@
  *
  * @Fogus: 'Functions that always return a Boolean value are called
  * "predicates."'
- * ----------------------------------------------------------------*/
+ * --------------------------------------------------------------- */
 
 
 	// `exists` is a boolean function that returns whether an
 	// element exists (is neither `undefined` nor `null`). Loose
 	// equality makes this a one-liner.
-	g_.exists = function(val) {
+	var exists = g_.exists = function(val) {
 		return val != null;
 	};
 
 
-	g_.isTruthy = function(val) {
+	var isTruthy =  g_.isTruthy = function(val) {
 		return val !== false && g_.exists(val);
 	};
 
 
-	g_.isFalsy = function(val) {
+	var isFalsy = g_.isFalsy = function(val) {
 		return !g_.isTruthy(val);
 	};
 
 
-	g_.isFunction = function(val) {
+	var isFunction = g_.isFunction = function(val) {
 		return typeof val === 'function';
 	};
 
 
-	g_.isNumber = function(val) {
+	var isNumber = g_.isNumber = function(val) {
 		return !isNaN(val);
 	};
 
 
-	g_.isString = function(val) {
+	var isString = g_.isString = function(val) {
 		return typeof val === 'string';
 	};
 
 
-	g_.isArray = function(obj) {
+	var isArray = g_.isArray = function(obj) {
 		return obj instanceof Array;
 	};
 
 
-	g_.isObject = function(obj) {
+	var isObject = g_.isObject = function(obj) {
 		return obj instanceof Object;
 	};
 
 
-	g_.isEqual = function(x, y) {
+	var isEqual = g_.isEqual = function(x, y) {
 		return x === y;
 	};
 
 
-	g_.isGreaterThan = function(x, y) {
+	var isGreaterThan = g_.isGreaterThan = function(x, y) {
 		return x > y;
 	};
 
 
 })();
+
+var obj1 = {foo: 'gazi'};
+var obj2 = {bar: 'mitvah'};
+var result = g_.extend(obj1, obj2);
+
+console.log(result);
