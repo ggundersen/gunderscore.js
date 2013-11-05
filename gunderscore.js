@@ -27,7 +27,7 @@
 	// rather, it abstracts them away with functions. And any loss in
 	// performance can be mitigated or regained by a compressor.
 	var each = g_.each = function(coll, func) {
-		if ( !g_.exists(coll) ) return;
+		if ( !exists(coll) ) return;
 
 		var i = 0,
 			keys,
@@ -73,23 +73,23 @@
 	// that as the new value of `seed`. If `func` does not mutate
 	// seed--try passing in `identity`--then reduce simply returns
 	// `seed`. See `legacyReduce`.
-	var reduce = g_.reduce = function(coll, func) {
-		var result;
+	var reduce = g_.reduce = function(coll, func, seed) {
+		var noSeed = arguments.length < 3;
 
 		each(coll, function(item, i) {
-			if (i === 0) {
-				// On the first loop, there is no previous item.
-				result = item;
+			if (noSeed) {
+				noSeed = false;
+				seed = item;
 			} else {
-				// Every call to `reduce` reassigns `result` with the
-				// value of `func`, called with `result` and `item`.
-				// In other words, `func` gets called with the last
-				// and current items in `coll`.
-				result = func(result, item, i);
+				// Every iteration of `each` reassigns `seed` with
+				// the value of `func`, called with `seed` and
+				// `item`. In other words, `func` gets called with
+				// the last and current items in `coll`.
+				seed = func(seed, item, i);
 			}
 		});
 
-		return result;
+		return seed;
 	};
 
 
@@ -246,6 +246,16 @@
 		});
 
 		return result;
+	};
+
+
+	// `pipeline`
+	var pipeline = g_.pipeline = function(seed /*, args */) {
+		return reduce(tail(arguments),
+					  function(last, curr) {
+					  	  return curr(last);
+					  },
+					  seed);
 	};
 
 
@@ -470,3 +480,7 @@
 
 
 })();
+
+
+var result = g_.pipeline(42, function(x) { return -x });
+console.log(result);
