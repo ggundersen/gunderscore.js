@@ -1,15 +1,13 @@
 /* 
  * gunderscore
  * 2013-10-15
- * ----------------------------------------------------------------*/
+ * --------------------------------------------------------------- */
 
 
 (function() {
 
-/* `g_`, the `gunderscore` object
- * ----------------------------------------------------------------*/
 
-
+	// `g_`, the `gunderscore` object
 	this.g_ = g_ = {};
 
 
@@ -20,16 +18,14 @@
  * collection... The point of a collection-centric view... is to have 
  * a consistent processing idiom so that we can reuse a comprehensive
  * set of functions.'
- * ----------------------------------------------------------------*/
+ * --------------------------------------------------------------- */
 
-
-	/* `each` is an immutable iterator. It is the quintessential
-	 * example of a functional style. Note that it uses a `for` loop.
-	 * Functional programming does not eliminate imperative concepts;
-	 * rather, it abstracts them away with functions. And any loss in
-	 * performance can be mitigated or regained by a compressor.
-	 */
-	g_.each = function(coll, func, context) {
+	// `each` is an immutable iterator. It is the quintessential
+	// example of a functional style. Note that it uses a `for` loop.
+	// Functional programming does not eliminate imperative concepts;
+	// rather, it abstracts them away with functions. And any loss in
+	// performance can be mitigated or regained by a compressor.
+	g_.each = function(coll, func, that) {
 		if ( !g_.exists(coll) ) return;
 
 		var i = 0,
@@ -39,13 +35,13 @@
 		if ( g_.isArray(coll) || g_.isString(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
-				func.call( context, coll[i], i, coll );
+				func.call(that, i);
 			}
 		} else {
 			keys = g_.keys(coll);
 			len  = keys.length;
 			for ( ; i < len; i++) {
-				func.call( context, coll[keys[i]], i, coll );
+				func.call(that, keys[i]);
 			}
 		}
 
@@ -53,11 +49,10 @@
 	};
 
 
-	/* `map` calls a function on every value in a collection,
-	 * returning an array of results. Notice how it uses `each`.
-	 * Functional programming builds bigger abstractions by
-	 * 'snapping' smaller abstractions together.
-	 */
+	// `map` calls a function on every value in a collection,
+	// returning an array of results. Notice how it uses `each`.
+	// Functional programming builds bigger abstractions by
+	// 'snapping' smaller abstractions together.
 	g_.map = function(coll, func, that) {
 		var result = [];
 
@@ -69,30 +64,51 @@
 	};
 
 
-	/* `reduce` calls a function on every value in a collection,
-	 * accumulates the result, and returns it.
-	 */
-	g_.reduce = function(coll, func, seed) {
+	// `reduce` calls a function on every value in a collection,
+	// accumulates the result, and returns it. Note that `reduce` is
+	// recursive. It calls `func` for each item in `coll` and assigns
+	// that as the new value of `seed`. If `func` does not mutate
+	// seed--try passing in `identity`--then reduce simply returns
+	// `seed`. See `legacyReduce`.
+	var reduce = g_.reduce = function(coll, func, seed, context) {
 		var result = 0,
 			noSeed = arguments.length < 3;
 
-		g_.each(coll, function(i) {
+		each(coll, function(item, i) {
 			if (noSeed) {
-				seed = value;
+				// If no seed value is provided, use the value of the
+				// first item in the list.
+				seed = item;
 				noSeed = false;
 			} else {
-				seed = func.call(this, seed, value);
+				// `seed` is scoped to `reduce`, not `each`. Every
+				// call to `reduce` reassigns this variable with the
+				// value of the previous `seed`s.
+				seed = func.call( context, seed, item, i);
 			}
-			//result += func.call(seed, coll[i]);
 		});
 
-		return seed = result;
+		return seed;
 	};
 
 
-	/* `filter` calls a predicate function on each item in a
-	 * collection, returning a collection of predicates.
-	 */
+	// `legacyReduce` was my first attempt at `reduce`. The key flaw
+	// in the implementation was that I created a mutable, 'global'
+	// variable, `result` and mutated it upon every iteration of
+	// `each`. The new `reduce` is recursive.
+	var legacyReduce = function(coll, func, that) {
+		var result = 0;
+
+		g_.each(coll, function(i) {
+			result += func.call(that, coll[i]);
+		});
+
+		return result;
+	};
+
+
+	// `filter` calls a predicate function on each item in a
+	// collection, returning a collection of predicates.
 	g_.filter = function(coll, pred, that) {
 		var result = [];
 
@@ -106,17 +122,15 @@
 	};
 
 
-	/* `find` takes a collection and a predicate and returns the
-	 * first element for which the predicate returns true.
-	 */
+	// `find` takes a collection and a predicate and returns the
+	// first element for which the predicate returns true.
 	g_.find = function(coll, pred, that) {
 		return g_.filter(coll, pred, that)[0];
 	};
 
 
-	/* `where` takes an array of objects and returns all of the
-	 * objects that match the criteria.
-	 */
+	// `where` takes an array of objects and returns all of the
+	// objects that match the criteria.
 	g_.where = function(coll, crit) {
 		return g_.filter(coll, function(item) {
 			for (key in crit) {
@@ -129,9 +143,8 @@
 	};
 
 
-	/* `select` takes an array of objects and returns the values of
-	 * each object's `key` key.
-	 */
+	// `select` takes an array of objects and returns the values of
+	// each object's `key` key.
 	g_.select = function(coll, key) {
 		return g_.map(coll, function(item) {
 			return item[key];
@@ -139,9 +152,8 @@
 	};
 
 
-	/* `invert` takes an associative array and switches the keys and
-	 * the values.
-	 */
+	// `invert` takes an associative array and switches the keys and
+	// the values.
 	g_.invert = function(coll) {
 
 		if ( g_.isArray(coll) ) return;
@@ -158,11 +170,10 @@
 	};
 
 
-	/* `not` is the opposite of filter. This is a nice example of
-	 * functional programming. `not` relies on `filter` which relies
-	 * on `each`. Abstraction upon abstraction. The code is dense,
-	 * but elegant.
-	 */
+	// `not` is the opposite of filter. This is a nice example of
+	// functional programming. `not` relies on `filter` which relies
+	// on `each`. Abstraction upon abstraction. The code is dense,
+	// but elegant.
 	g_.not = function(coll, pred) {
 		return g_.filter(coll, function(i) {
 			return !pred(i);
@@ -170,25 +181,22 @@
 	};
 
 
-	/* `all` takes a collection and a predicate and returns true if
-	 * all of the elements return true on the predicate.
-	 */
+	// `all` takes a collection and a predicate and returns true if
+	// all of the elements return true on the predicate.
 	g_.all = function(coll, pred) {
 		return coll.length === filter(coll, pred).length;
 	};
 
 
-	/* `any` takes a collection and a predicate and returns true if 
-	 * any of the elements return true on the predicate.
-	 */
+	// `any` takes a collection and a predicate and returns true if 
+	// any of the elements return true on the predicate.
 	g_.any = function(coll, pred) {
 		return g_.filter(coll, pred).length > 0;
 	};
 
 
-	/* `tail` creates a new array with the first element from the
-	 * input array removed.
-	 */
+	// `tail` creates a new array with the first element from the
+	// input array removed.
 	g_.tail = function(coll) {
 		if ( !g_.isArray(coll) ) return;
 
@@ -196,16 +204,14 @@
 	};
 
 
-	/* `first` selects the first item in a collection.
-	 */
+	// `first` selects the first item in a collection.
 	g_.first = function(coll) {
 		if ( g_.isArray(coll) || g_.isString(coll) ) return coll[0];
 		else return coll[ g_.keys(coll)[0] ];
 	};
 
 
-	/* `max` returns the largest number in an array.
-	 */
+	// `max` returns the largest number in an array.
 	g_.max = function(coll, pred) {
 		var result = -Infinity; // This acounts for negative numbers.
 
@@ -221,8 +227,7 @@
 	};
 
 
-	/* `min` returns the smallest number in an array.
-	 */
+	// `min` returns the smallest number in an array.
 	g_.min = function(coll, pred) {
 		var result = Infinity; // This acounts for positive numbers.
 
@@ -239,38 +244,33 @@
 
 
 /* Utility functions
- * ----------------------------------------------------------------*/
+ * --------------------------------------------------------------- */
 
-
-	/* `identity` returns the value it is passed. This abstraction is
-	 * surprisingly important because, since functional programming
-	 * focuses on functions rather than values (for configuration),
-	 * we often need to pass in `identity`.
-	 */
-	g_.identity = function(val) {
+	// `identity` returns the value it is passed. This abstraction is
+	// surprisingly important because, since functional programming
+	// focuses on functions rather than values (for configuration),
+	// we often need to pass in `identity`.
+	var identity = g_.identity = function(val) {
 		return val;
 	};
 
 
-	/* `times` executes `func` `n` times.
-	 */
+	// `times` executes `func` `n` times.
 	g_.times = function(n, func) {
 		g_.each( g_.range(n), func );
 		
 		return;
 	};
 
-	/* `constant` is configurable, higher-order that returns a function
-	 * that always returns the input.
-	 */
+	// `constant` is configurable, higher-order that returns a function
+	// that always returns the input.
 	g_.constant = function(constant) {
 		return function() { return constant; };
 	};
 
 
-	/* `range` returns an array of size `stop`, with optional
-	 * `start` and `step` parameters.
-	 */
+	// `range` returns an array of size `stop`, with optional
+	// `start` and `step` parameters.
 	g_.range = function(start, stop, step) {
 		var i,
 			result = [],
@@ -286,9 +286,8 @@
 	};
 
 
-	/* `clone` creates a clone of an array or associative array
-	 * without mutating the input.
-	 */
+	// `clone` creates a clone of an array or associative array
+	// without mutating the input.
 	g_.clone = function(coll) {
 		// TODO: Add `deep copy` functionality.
 		if ( g_.isArray(coll) )  return coll.slice(0);
@@ -296,9 +295,8 @@
 	};
 
 
-	/* `memoize` builds a cache of function calls and return values,
-	 * and only executes `func` if it has not done so previously.
-	 */
+	// `memoize` builds a cache of function calls and return values,
+	// and only executes `func` if it has not done so previously.
 	g_.memoize = function(func) {
 		var cache = {};
 
@@ -316,29 +314,26 @@
 
 
 	/* Conversion functions
- 	 * ------------------------------------------------------------*/
+ 	 * -------------------- */
 
-	/* `toArray` turns array-like objects (`arguments`, strings)
-	 * into arrays
-	 */
+	// `toArray` turns array-like objects (`arguments`, strings)
+	// into arrays
 	g_.toArray = function(args) {
 		return Array.prototype.slice.call(args, 0);
 	};
 
 
-	/* `toHexidecimal` returns a hexidecimal number, based on the
-	 * number `n` applied.
-	 */
+	// `toHexidecimal` returns a hexidecimal number, based on the
+	// number `n` applied.
 	g_.toHexidecimal = function(n) {
 		return n.toString(16);
 	};
 
 
 	/* Object functions
- 	 * ------------------------------------------------------------*/
+ 	 * ---------------- */
 
-	/* `keys` takes an associative array and returns array of keys.
-	 */
+	// `keys` takes an associative array and returns array of keys.
 	g_.keys = function(coll) {
 		var result = [];
 
@@ -350,9 +345,8 @@
 	};
 
 
-	/* `values` takes an associative array and returns array of 
-	 * values.
-	 */
+	// `values` takes an associative array and returns array of 
+	// values.
 	g_.vals = function(coll) {
 		var result = [];
 
@@ -364,8 +358,7 @@
 	};
 
 
-	/* `extend` merges two or more associative arrays into a target.
-	 */
+	// `extend` merges two or more associative arrays into a target.
 	g_.extend = function(source /*, args */) {
 		var prop,
 			result = source, // Do not mutate applied object.
@@ -381,8 +374,7 @@
 	};
 
 
-	/* `has` is a convenience wrapper for `hasOwnProperty`.
-	 */
+	// `has` is a convenience wrapper for `hasOwnProperty`.
 	g_.has = function(obj, key) {
 		return obj.hasOwnProperty(key);
 	};
@@ -395,10 +387,9 @@
  * ----------------------------------------------------------------*/
 
 
-	/* `exists` is a boolean function that returns whether an
-	 * element exists (is neither `undefined` nor `null`). Loose
-	 * equality makes this a one-liner.
-	 */
+	// `exists` is a boolean function that returns whether an
+	// element exists (is neither `undefined` nor `null`). Loose
+	// equality makes this a one-liner.
 	g_.exists = function(val) {
 		return val != null;
 	};
@@ -447,5 +438,6 @@
 	g_.isGreaterThan = function(x, y) {
 		return x > y;
 	};
+
 
 })();
