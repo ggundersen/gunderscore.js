@@ -124,7 +124,9 @@
 
 
 	// `find` takes a collection and a predicate and returns the
-	// first element for which the predicate returns true.
+	// first element for which the predicate returns true. While this
+	// implementation is inefficient, it is clear that we are
+	// building an abstraction upon an abstraction.
 	var find = g_.find = function(coll, pred) {
 		return filter(coll, pred)[0];
 	};
@@ -147,7 +149,7 @@
 	// `select` takes an array of objects and returns the values of
 	// each object's `key` key.
 	var select = g_.select = function(coll, key) {
-		return g_.map(coll, function(item) {
+		return map(coll, function(item) {
 			return item[key];
 		});
 	};
@@ -295,8 +297,8 @@
 	// without mutating the input.
 	var clone = g_.clone = function(coll) {
 		// TODO: Add `deep copy` functionality.
-		if ( g_.isArray(coll) )  return coll.slice(0);
-		if ( g_.isObject(coll) ) return g_.extend({}, coll);
+		if ( isArray(coll) )  return coll.slice(0);
+		if ( isObject(coll) ) return mixin({}, coll);
 	};
 
 
@@ -307,7 +309,7 @@
 
 		return function(/* args */) {
 			// This converts `arguments` to a stringified array.
-			var args = g_.toArray(arguments).toString();
+			var args = toArray(arguments).toString();
 
 			if ( !cache[args] ) {
 				cache[args] = func.apply(func, arguments);
