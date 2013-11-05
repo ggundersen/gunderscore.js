@@ -200,7 +200,7 @@
 	// input array removed.
 	var tail = g_.tail = function(coll) {
 		// Why not `return coll.slice(1)`? See:
-		// http://stackoverflow.com/questions/7056925/
+		// fhttp://stackoverflow.com/questions/7056925/
 		return Array.prototype.slice.call(coll, 1);
 	};
 
@@ -360,15 +360,35 @@
 	};
 
 
-	// `extend` merges two or more associative arrays into a target.
-	g_.extend = function(source /*, args */) {
-		var prop,
-			result = source, // Do not mutate applied object.
-			objs = g_.tail(arguments);
+	// `mixin` combines the properties of the objects applied without
+	// mutating them. It returns a new object.
+	var mixin = g_.mixin = function(/* args */) {
+		var result = {},
+			prop,
+			args = toArray(arguments);
 
-		each(objs, function(i) {
-			for (prop in objs[i]) {
-				result[prop] = objs[i][prop];
+		each(args, function(obj) {
+			for (prop in obj) {
+				result[prop] = obj[prop];
+			}
+		});
+
+		return result;
+	};
+
+
+	// `legacyExtend`--now `mixin`--extends the `result` object with
+	// the properties with the object(s) applied. @Fogus, 'The
+	// problem of course is that _.extend mutates the first object
+	// in its argument list.' See `mixin` for a purely functional
+	// implementation.
+	var legacyExtend = function(result /*, args */) {
+		var prop,
+			args = g_.tail(arguments);
+
+		each(args, function(obj) {
+			for (prop in obj) {
+				result[prop] = obj[prop];
 			}
 		});
 
@@ -443,9 +463,3 @@
 
 
 })();
-
-var obj1 = {foo: 'gazi'};
-var obj2 = {bar: 'mitvah'};
-var result = g_.extend(obj1, obj2);
-
-console.log(result);
