@@ -73,29 +73,23 @@
 	// that as the new value of `seed`. If `func` does not mutate
 	// seed--try passing in `identity`--then reduce simply returns
 	// `seed`. See `legacyReduce`.
-	var reduce = g_.reduce = function(coll, func, seed, context) {
-		var result = 0,
-			noSeed = arguments.length < 3;
-
-		/*each(coll, function(item, i) {
-			if (noSeed) {
-				// If no seed value is provided, use the value of the
-				// first item in the list.
-				seed = item;
-				noSeed = false;
-			} else {
-				// `seed` is scoped to `reduce`, not `each`. Every
-				// call to `reduce` reassigns this variable with the
-				// value of the previous `seed`s.
-				seed = func.call( context, seed, item, i);
-			}
-		});*/
+	var reduce = g_.reduce = function(coll, func, context) {
+		var result;
 
 		each(coll, function(item, i) {
-			item = func.call( context, item, i);
+			if (i === 0) {
+				// On the first loop, there is no previous item.
+				result = item;
+			} else {
+				// Every call to `reduce` reassigns `result` with the
+				// value of `func`, called with `result` and `item`.
+				// In other words, `func` gets called with the last
+				// and current items in `coll`.
+				result = func.call( context, result, item, i);
+			}
 		});
 
-		return seed;
+		return result;
 	};
 
 
