@@ -26,7 +26,7 @@
 	// Functional programming does not eliminate imperative concepts;
 	// rather, it abstracts them away with functions. And any loss in
 	// performance can be mitigated or regained by a compressor.
-	var each = g_.each = function(coll, func, context) {
+	var each = g_.each = function(coll, func) {
 		if ( !g_.exists(coll) ) return;
 
 		var i = 0,
@@ -38,13 +38,13 @@
 			for ( ; i < len; i++) {
 				// Use call to allow for function context
 				// configuration.
-				func.call( context, coll[i], i );
+				func(coll[i], i);
 			}
 		} else {
 			keys = g_.keys(coll);
 			len  = keys.length;
 			for ( ; i < len; i++) {
-				func.call( context, coll[keys[i]], i );
+				func(coll[keys[i]], i);
 			}
 		}
 
@@ -56,11 +56,11 @@
 	// returning an array of results. Notice how it uses `each`.
 	// Functional programming builds bigger abstractions by
 	// 'snapping' smaller abstractions together.
-	var map = g_.map = function(coll, func, that) {
+	var map = g_.map = function(coll, func) {
 		var result = [];
 
-		each(coll, function(i) {
-			result.push( func.call(that, coll[i]));
+		each(coll, function(item) {
+			result.push( func(item) );
 		});
 		
 		return result;
@@ -73,7 +73,7 @@
 	// that as the new value of `seed`. If `func` does not mutate
 	// seed--try passing in `identity`--then reduce simply returns
 	// `seed`. See `legacyReduce`.
-	var reduce = g_.reduce = function(coll, func, context) {
+	var reduce = g_.reduce = function(coll, func) {
 		var result;
 
 		each(coll, function(item, i) {
@@ -85,7 +85,7 @@
 				// value of `func`, called with `result` and `item`.
 				// In other words, `func` gets called with the last
 				// and current items in `coll`.
-				result = func.call( context, result, item, i);
+				result = func(result, item, i);
 			}
 		});
 
@@ -97,11 +97,11 @@
 	// in the implementation was that I created a mutable, 'global'
 	// variable, `result` and mutated it upon every iteration of
 	// `each`. The new `reduce` is recursive.
-	var legacyReduce = function(coll, func, that) {
+	var legacyReduce = function(coll, func) {
 		var result = 0;
 
-		each(coll, function(i) {
-			result += func.call(that, coll[i]);
+		each(coll, function(item) {
+			result += func(item);
 		});
 
 		return result;
@@ -110,12 +110,12 @@
 
 	// `filter` calls a predicate function on each item in a
 	// collection, returning a collection of predicates.
-	g_.filter = function(coll, pred, that) {
+	var filter = g_.filter = function(coll, pred) {
 		var result = [];
 
-		each(coll, function(i) {
-			if ( pred.call(that, coll[i]) ) {
-				result.push( coll[i] );
+		each(coll, function(item) {
+			if ( pred(item) ) {
+				result.push(item);
 			}
 		});
 
@@ -125,15 +125,15 @@
 
 	// `find` takes a collection and a predicate and returns the
 	// first element for which the predicate returns true.
-	g_.find = function(coll, pred, that) {
-		return g_.filter(coll, pred, that)[0];
+	var find = g_.find = function(coll, pred) {
+		return filter(coll, pred)[0];
 	};
 
 
 	// `where` takes an array of objects and returns all of the
 	// objects that match the criteria.
-	g_.where = function(coll, crit) {
-		return g_.filter(coll, function(item) {
+	var where = g_.where = function(coll, crit) {
+		return filter(coll, function(item) {
 			for (key in crit) {
 				if (crit[key] !== item[key]) {
 					return false;
@@ -146,7 +146,7 @@
 
 	// `select` takes an array of objects and returns the values of
 	// each object's `key` key.
-	g_.select = function(coll, key) {
+	var select = g_.select = function(coll, key) {
 		return g_.map(coll, function(item) {
 			return item[key];
 		});
@@ -155,7 +155,7 @@
 
 	// `invert` takes an associative array and switches the keys and
 	// the values.
-	g_.invert = function(coll) {
+	var invert = g_.invert = function(coll) {
 
 		if ( g_.isArray(coll) ) return;
 
@@ -175,7 +175,7 @@
 	// functional programming. `not` relies on `filter` which relies
 	// on `each`. Abstraction upon abstraction. The code is dense,
 	// but elegant.
-	g_.not = function(coll, pred) {
+	var not = g_.not = function(coll, pred) {
 		return g_.filter(coll, function(i) {
 			return !pred(i);
 		});
@@ -184,19 +184,19 @@
 
 	// `all` takes a collection and a predicate and returns true if
 	// all of the elements return true on the predicate.
-	g_.all = function(coll, pred) {
+	var all = g_.all = function(coll, pred) {
 		return coll.length === filter(coll, pred).length;
 	};
 
 
 	// `any` takes a collection and a predicate and returns true if 
 	// any of the elements return true on the predicate.
-	g_.any = function(coll, pred) {
-		return g_.filter(coll, pred).length > 0;
+	var any = g_.any = function(coll, pred) {
+		return filter(coll, pred).length > 0;
 	};
 
 
-	// `tail` creates a new array with the first element from the
+	// `tail` returns a new array with the first element from the
 	// input array removed.
 	var tail = g_.tail = function(coll) {
 		// Why not `return coll.slice(1)`? See:
@@ -206,14 +206,17 @@
 
 
 	// `first` selects the first item in a collection.
-	g_.first = function(coll) {
-		if ( g_.isArray(coll) || g_.isString(coll) ) return coll[0];
-		else return coll[ g_.keys(coll)[0] ];
+	var first = g_.first = function(coll) {
+		if ( isArray(coll) || isString(coll) ) {
+			return coll[0];
+		} else {
+			return coll[ keys(coll)[0] ];
+		}
 	};
 
 
 	// `max` returns the largest number in an array.
-	g_.max = function(coll, pred) {
+	var max = g_.max = function(coll, pred) {
 		var result = -Infinity; // This acounts for negative numbers.
 
 		if (!g_.exists(coll) || !g_.isArray(coll)) return;
@@ -229,7 +232,7 @@
 
 
 	// `min` returns the smallest number in an array.
-	g_.min = function(coll, pred) {
+	var min = g_.min = function(coll, pred) {
 		var result = Infinity; // This acounts for positive numbers.
 
 		if (!g_.exists(coll) || !g_.isArray(coll)) return;
@@ -258,7 +261,7 @@
 
 
 	// `times` executes `func` `n` times.
-	g_.times = function(n, func) {
+	var times = g_.times = function(n, func) {
 		each( g_.range(n), func );
 		
 		return;
@@ -266,14 +269,14 @@
 
 	// `constant` is configurable, higher-order that returns a function
 	// that always returns the input.
-	g_.constant = function(constant) {
+	var constant = g_.constant = function(constant) {
 		return function() { return constant; };
 	};
 
 
 	// `range` returns an array of size `stop`, with optional
 	// `start` and `step` parameters.
-	g_.range = function(start, stop, step) {
+	var range = g_.range = function(start, stop, step) {
 		var i,
 			result = [],
 			stop   = arguments[1] || arguments[0],
@@ -290,7 +293,7 @@
 
 	// `clone` creates a clone of an array or associative array
 	// without mutating the input.
-	g_.clone = function(coll) {
+	var clone = g_.clone = function(coll) {
 		// TODO: Add `deep copy` functionality.
 		if ( g_.isArray(coll) )  return coll.slice(0);
 		if ( g_.isObject(coll) ) return g_.extend({}, coll);
@@ -299,7 +302,7 @@
 
 	// `memoize` builds a cache of function calls and return values,
 	// and only executes `func` if it has not done so previously.
-	g_.memoize = function(func) {
+	var memoize = g_.memoize = function(func) {
 		var cache = {};
 
 		return function(/* args */) {
@@ -396,8 +399,10 @@
 	};
 
 
-	// `has` is a convenience wrapper for `hasOwnProperty`.
-	g_.has = function(obj, key) {
+	// `has` is a convenience wrapper for `hasOwnProperty`. While a
+	// bit trivial, it highlights how functional programming can,
+	// ostensibly, create a more fluent interface. 
+	var has = g_.has = function(obj, key) {
 		return obj.hasOwnProperty(key);
 	};
 
