@@ -33,7 +33,7 @@
 			keys,
 			len;
 
-		if ( isArray(coll) || isString(coll) ) {
+		if ( isIndexed(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
 				// Use call to allow for function context
@@ -41,10 +41,10 @@
 				func(coll[i], i);
 			}
 		} else {
-			keys = g_.keys(coll);
-			len  = keys.length;
+			ks = keys(coll);
+			len  = ks.length;
 			for ( ; i < len; i++) {
-				func(coll[keys[i]], i);
+				func(coll[ks[i]], i);
 			}
 		}
 
@@ -54,11 +54,14 @@
 
 	// `map` calls a function on every value in a collection,
 	// returning an array of results. Notice how it uses `each`.
-	// Functional programming builds bigger abstractions by
-	// 'snapping' smaller abstractions together.
+	// Functional programming builds bigger abstractions from
+	// smaller abstractions.
 	var map = g_.map = function(coll, func) {
 		var result = [];
 
+		// Note that the anonymous function passed to `each` adheres
+		// to `each`'s contract, namely it takes a parameter `item`
+		// which is just `coll[i]` for the appropriate iteration.
 		each(coll, function(item) {
 			result.push( func(item) );
 		});
@@ -67,24 +70,28 @@
 	};
 
 
-	// `reduce` calls a function on every value in a collection,
-	// accumulates the result, and returns it. Note that `reduce` is
-	// recursive. It calls `func` for each item in `coll` and assigns
-	// that as the new value of `seed`. If `func` does not mutate
-	// seed--try passing in `identity`--then reduce simply returns
-	// `seed`. See `legacyReduce`.
+	// `reduce` returns a single result from a list of values. Note
+	// that `reduce` is recursive. It calls `func` for each item in
+	// `coll` and assigns that as the new value of `seed`. If `func`
+	// does not reassign seed--try passing in `identity`--then
+	// `reduce` simply returns `seed`. See `legacyReduce`.
 	var reduce = g_.reduce = function(coll, func, seed) {
 		var noSeed = arguments.length < 3;
 
 		each(coll, function(item, i) {
 			if (noSeed) {
+				// This condition passes at most once. If it passes,
+				// `seed`--the first iteration on the collection--is
+				// assigned the value of the first item in the
+				// collection.
 				noSeed = false;
 				seed = item;
 			} else {
 				// Every iteration of `each` reassigns `seed` with
 				// the value of `func`, called with `seed` and
 				// `item`. In other words, `func` gets called with
-				// the last and current items in `coll`.
+				// the running, accumulated value and current item
+				// in `coll`.
 				seed = func(seed, item, i);
 			}
 		});
@@ -107,30 +114,31 @@
 		return result;
 	};
 
-
-	// `curry` takes a function `func` and allows partial
-	// application of its named arguments.
-	// TODO: How can I generalize this?
-
 	/*
+	EXAMPLE
 	var add = g_.curry(function(a, b) {
 		return a + b;
 	});
-
 	add15 = add(15);
-
-	add15(27) == 42;
+	add15(27);   // 42;
+	add(15, 27); // 42
 	*/
 
-	// The most naive implementation. Basically, `curry` just forces
-	// each returned function to call only the first argument applied.
-	// The question is, how can we do this for an arbitrary number
-	// of applied arguments?
+	// `curry` takes a function `func` and allows partial
+	// application of its named arguments.
 	var curry = g_.curry = function(func) {
-		return function(arg1) {
-			return function(arg2) {
-				return func(arg1, arg2);
-			};
+		return function(arg) {
+			return func(arg);
+		};
+	};
+
+
+	// `legacyCurry` takes a function and returns a function
+	// expecting one parameter. It enforces currying, essentially.
+	// See `curry` for a more robust implementation.
+	var legacyCurry = function(func) {
+		return function(arg) {
+			return func(arg);
 		};
 	};
 
@@ -186,14 +194,14 @@
 	// the values.
 	var invert = g_.invert = function(coll) {
 
-		if ( g_.isArray(coll) ) return;
+		if ( isArray(coll) ) return;
 
 		var result = {},
-			keys   = g_.keys(coll),
-			vals   = g_.vals(coll);
+			ks     = keys(coll),
+			vs     = vals(coll);
 
 		each(keys, function(i) {
-			result[vals[i]] = keys[i];
+			result[vs[i]] = ks[i];
 		});
 
 		return result;
@@ -205,7 +213,7 @@
 	// on `each`. Abstraction upon abstraction. The code is dense,
 	// but elegant.
 	var not = g_.not = function(coll, pred) {
-		return g_.filter(coll, function(i) {
+		return filter(coll, function(i) {
 			return !pred(i);
 		});
 	};
@@ -236,7 +244,7 @@
 
 	// `first` selects the first item in a collection.
 	var first = g_.first = function(coll) {
-		if ( isArray(coll) || isString(coll) ) {
+		if ( isIndexed(coll) ) {
 			return coll[0];
 		} else {
 			return coll[ keys(coll)[0] ];
@@ -302,7 +310,6 @@
 	// `times` executes `func` `n` times.
 	var times = g_.times = function(n, func) {
 		each( g_.range(n), func );
-		
 		return;
 	};
 
@@ -357,6 +364,23 @@
 	};
 
 
+	// `nth` returns the element located within a collection at the
+	// index provided. Fogus says, 'While array indexing is a core
+	// behavior in JavaScript, there is no way to grab hold of the
+	// behavior and use it as needed without placing it into a
+	// function.' But now that it is a function, we can do this:
+	//
+	// function second(coll) { return nth(arr, 1); };
+	//
+	// This is powerful because, as Fogus says, `second` allows us to
+	// 'appropriate the correct behavior of `nth` for a different but
+	// related use case.'
+	var nth = g_.nth = function(coll, index) {
+		if ( !isIndexed(coll) ) return;
+		return coll[index];
+	};
+
+
 	/* Conversion functions
  	 * -------------------- */
 
@@ -373,6 +397,24 @@
 		return n.toString(16);
 	};
 
+
+	// `comparator` maps a predicate function to comparator values,
+	// -1, 0, and 1. As a use case, we can now write the following,
+	// since `sort` take an optional comparator argument:
+	//
+	// [2, 3, -1, -6, 0, -108, 42].sort(comparator(!isGreaterThan));
+	// => [-108, -6, -1, 0, 2, 3, 42]
+	var comparator = g.comparator = function(pred) {
+		return function(x, y) {
+			if ( isFalsy(pred(x, y)) ) {
+				return -1;
+			} else if ( isTruthy(pred(x, y)) ) {
+				return 1;
+			} else {
+				return 0;
+			}
+		}
+	};
 
 	/* Object functions
  	 * ---------------- */
@@ -438,9 +480,10 @@
 	};
 
 
-	// `has` is a convenience wrapper for `hasOwnProperty`. While a
-	// bit trivial, it highlights how functional programming can,
-	// ostensibly, create a more fluent interface. 
+	// `has` is a convenience wrapper for `hasOwnProperty`. It
+	// highlights how functional programming create fluent interfaces
+	// and now the built-in behavior of `has` can be passed around as
+	// a first-class function.
 	var has = g_.has = function(obj, key) {
 		return obj.hasOwnProperty(key);
 	};
@@ -461,6 +504,9 @@
 	};
 
 
+	// `isTruthy` returns true if the value exists and is not false.
+	// Note that it does not return truthy in the JavaScript sense of
+	// of the word (e.g. 0 will return true).
 	var isTruthy =  g_.isTruthy = function(val) {
 		return val !== false && g_.exists(val);
 	};
@@ -481,13 +527,18 @@
 	};
 
 
-	var isString = g_.isString = function(val) {
-		return typeof val === 'string';
+	var isString = g_.isString = function(obj) {
+		return obj instanceof String;
 	};
 
 
 	var isArray = g_.isArray = function(obj) {
 		return obj instanceof Array;
+	};
+
+
+	var isIndexed = g_.isIndexed = function(obj) {
+		return isArray(obj) || isString(obj);
 	};
 
 
@@ -507,21 +558,3 @@
 
 
 })();
-
-var add = g_.curry(function(a, b) {
-	return a + b;
-});
-
-var add15 = add(15);
-
-console.log(  add15(5)  );
-
-
-
-
-
-
-
-
-
-
