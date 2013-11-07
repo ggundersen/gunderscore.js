@@ -233,6 +233,11 @@
 	};
 
 
+	var properSubset = g_.properSubset = function(coll, pred) {
+		return any(coll) && !all(coll);
+	}
+
+
 	// `tail` returns a new array with the first element from the
 	// input array removed.
 	var tail = g_.tail = function(coll) {
@@ -291,6 +296,12 @@
 					  	  return curr(last);
 					  },
 					  seed);
+	};
+
+
+	// TODO: `zip`
+	var zip = g_.zip = function() {
+		
 	};
 
 
