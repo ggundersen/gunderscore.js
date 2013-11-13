@@ -114,34 +114,6 @@
 		return result;
 	};
 
-	/*
-	EXAMPLE
-	var add = g_.curry(function(a, b) {
-		return a + b;
-	});
-	add15 = add(15);
-	add15(27);   // 42;
-	add(15, 27); // 42
-	*/
-
-	// `curry` takes a function `func` and allows partial
-	// application of its named arguments.
-	var curry = g_.curry = function(func) {
-		return function(arg) {
-			return func(arg);
-		};
-	};
-
-
-	// `legacyCurry` takes a function and returns a function
-	// expecting one parameter. It enforces currying, essentially.
-	// See `curry` for a more robust implementation.
-	var legacyCurry = function(func) {
-		return function(arg) {
-			return func(arg);
-		};
-	};
-
 
 	// `filter` calls a predicate function on each item in a
 	// collection, returning a collection of predicates.
@@ -305,6 +277,50 @@
 	};
 
 
+
+/* Currying and partial application
+ *
+ * @Fogus: 'A curried function is one that returns a new function for
+ * every logical argument that it takes.''
+ * --------------------------------------------------------------- */
+
+
+	// `curry` takes a function `func` and allows for partial or
+	// full application of its arguments. If `curry` is provided with
+	// all the arguments that `func` expects, it calls `func` with
+	// those arguments. If it does not, it concatenates curried
+	// function's applied arguments with `func`'s arguments and then
+	// calls `func`. See `legacyCurry`.
+	var curry = g_.curry = function(func) {
+		return function(/* args */) {
+			var args = toArray(arguments);
+			if (func.length === args.length) {
+				return func.apply(null, args);
+			}
+			else {
+				return function(/* args */) {
+					// I do not like this. I am not calling the
+					// curried function. I am just using it as a way
+					// to grab its arguments and apply it to the
+					// original function.
+					var args2 = args.concat( toArray(arguments) );
+					return func.apply(null, args2);
+				};
+			}
+		};
+	};
+
+
+	// `legacyCurry` takes a function and returns a function
+	// expecting one parameter. It enforces currying, essentially.
+	// See `curry` for a more robust implementation.
+	var legacyCurry = function(func) {
+		return function(arg) {
+			return func(arg);
+		};
+	};
+
+
 /* Utility functions
  * --------------------------------------------------------------- */
 
@@ -415,7 +431,7 @@
 	//
 	// [2, 3, -1, -6, 0, -108, 42].sort(comparator(!isGreaterThan));
 	// => [-108, -6, -1, 0, 2, 3, 42]
-	var comparator = g.comparator = function(pred) {
+	var comparator = g_.comparator = function(pred) {
 		return function(x, y) {
 			if ( isFalsy(pred(x, y)) ) {
 				return -1;
