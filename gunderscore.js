@@ -282,8 +282,9 @@
 	var zip = g_.zip = function(/* args */) {
 		var args = toArray(arguments);
 
-		return map(args, function(arr) {
+		return map(args, function(arr, i) {
 			console.log(arr);
+			console.log(i);
 			//return [];
 		});
 	};
