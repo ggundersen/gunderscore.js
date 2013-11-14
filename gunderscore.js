@@ -62,6 +62,12 @@
 		// Note that the anonymous function passed to `each` adheres
 		// to `each`'s contract, namely it takes a parameter `item`
 		// which is just `coll[i]` for the appropriate iteration.
+		//
+		// Also note that `map` mutates a variable, `result`. In this
+		// way, `gunderscore` (and `underscore`) fails the definition
+		// of a purely functional library. Rather, it abstracts away
+		// mutation. As @Fogus says: 'As long as no one knows you've
+		// mutated a variable then does it matter? I'd say no.'
 		each(coll, function(item) {
 			result.push( func(item) );
 		});
@@ -272,8 +278,14 @@
 
 
 	// TODO: `zip`
-	var zip = g_.zip = function() {
-		
+	// [a,b,c], [1,2,3]
+	var zip = g_.zip = function(/* args */) {
+		var args = toArray(arguments);
+
+		return map(args, function(arr) {
+			console.log(arr);
+			//return [];
+		});
 	};
 
 
@@ -392,16 +404,16 @@
 
 
 	// `nth` returns the element located within a collection at the
-	// index provided. Fogus says, 'While array indexing is a core
+	// index provided. @Fogus says, 'While array indexing is a core
 	// behavior in JavaScript, there is no way to grab hold of the
 	// behavior and use it as needed without placing it into a
 	// function.' But now that it is a function, we can do this:
 	//
 	// function second(coll) { return nth(arr, 1); };
 	//
-	// This is powerful because, as Fogus says, `second` allows us to
-	// 'appropriate the correct behavior of `nth` for a different but
-	// related use case.'
+	// This is powerful because, as @Fogus says, `second` allows us
+	// to 'appropriate the correct behavior of `nth` for a different
+	// but related use case.'
 	var nth = g_.nth = function(coll, index) {
 		if ( !isIndexed(coll) ) return;
 		return coll[index];
