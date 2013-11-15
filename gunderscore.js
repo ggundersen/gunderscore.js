@@ -277,18 +277,34 @@
 	};
 
 
-	// TODO: `zip`
-	// [a,b,c], [1,2,3]
+	// `zip` combines multiple lists into arrays with a shared index.
+	// `zip` uses a for-loop rather than `each` because there is no
+	// good way to iterate over each list in `args` and then each
+	// item in each array in `args` with the correct index (try it).
+	//
+	// This is a good example of a function that, while not
+	// technically pure, conceptually is. Functions are the unit of
+	// abstraction. So long as mutations do not 'leak out', it does
+	// not matter.
+	//
+	// @Fogus: 'As long as no one knows you've mutated a variable
+	// then does it matter? I'd say no.'
 	var zip = g_.zip = function(/* args */) {
-		var args = toArray(arguments);
+		var args = toArray(arguments),
+			i = 0,
+			len = args[0].length,
+			result = [];
 
-		return map(args, function(arr, i) {
-			console.log(arr);
-			console.log(i);
-			//return [];
-		});
+		for ( ; i < len; i++) {
+			result.push(
+				map(args, function(arr) {
+					return arr[i];
+				})
+			);
+		}
+		
+		return result;
 	};
-
 
 
 /* Currying and partial application
