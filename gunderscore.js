@@ -51,8 +51,8 @@
 	// `each` is an immutable iterator. It is the quintessential
 	// example of a functional style. Note that it uses a `for` loop.
 	// Functional programming does not eliminate imperative concepts;
-	// rather, it abstracts them away with functions. And any loss in
-	// performance can be mitigated or regained by a compressor.
+	// rather, it abstracts them away with functions. Ideally, any
+	// loss in performance can be regained by a compressor.
 	var each = g_.each = function(coll, func) {
 		var i = 0,
 			keys,
@@ -61,8 +61,6 @@
 		if ( isIndexed(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
-				// Underscore.js uses `call` for function context
-				// configuration.
 				func(coll[i], i);
 			}
 		} else {
@@ -291,7 +289,7 @@
 
 
 	// `zip` combines multiple lists into arrays with a shared index.
-	// `zip` uses a for-loop rather than `each` because there is no
+	// `zip` uses a `for` loop rather than `each` because there is no
 	// good way to iterate over each list in `args` and then each
 	// item in each array in `args` with the correct index (try it).
 	//
@@ -303,9 +301,9 @@
 	// @Fogus: 'As long as no one knows you've mutated a variable
 	// then does it matter? I'd say no.'
 	var zip = g_.zip = function(/* args */) {
-		var args = toArray(arguments),
-			i = 0,
-			len = args[0].length,
+		var args   = toArray(arguments),
+			i      = 0,
+			len    = args[0].length,
 			result = [];
 
 		for ( ; i < len; i++) {
@@ -358,8 +356,8 @@
 					// curried function. I am just using it as a way
 					// to grab its arguments and apply it to the
 					// original function.
-					var args2 = args.concat( toArray(arguments) );
-					return func.apply(null, args2);
+					var allArgs = args.concat( toArray(arguments) );
+					return func.apply(null, allArgs);
 				};
 			}
 		};
@@ -407,13 +405,13 @@
 	// `range` returns an array of size `stop`, with optional
 	// `start` and `step` parameters.
 	var range = g_.range = function(start, stop, step) {
-		var i,
-			result = [],
+		var result = [],
 			stop   = arguments[1] || arguments[0],
 			start  = (arguments.length >= 2) ? arguments[0] : 0,
-			step   = arguments[2] || 1;
+			step   = arguments[2] || 1
+			i      = start;
 
-		for (i = start; i < stop; i = i+step) {
+		for ( ; i < stop; i = i+step) {
 			result.push(i);
 		}
 
@@ -427,10 +425,9 @@
 		var cache = {};
 
 		return function(/* args */) {
-			// This converts `arguments` to a stringified array.
 			var args = toArray(arguments).toString();
 
-			if ( !cache[args] ) {
+			if (!cache[args]) {
 				cache[args] = func.apply(func, arguments);
 			}
 
@@ -445,7 +442,7 @@
 	// behavior and use it as needed without placing it into a
 	// function.' But now that it is a function, we can do this:
 	//
-	// function second(coll) { return nth(arr, 1); };
+	// `function second(coll) { return nth(arr, 1); };`å
 	//
 	// This is powerful because, as @Fogus says, `second` allows us
 	// to 'appropriate the correct behavior of `nth` for a different
