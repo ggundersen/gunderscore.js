@@ -8,7 +8,7 @@
  * "Functional JavaScript."
  *
  * The library is (obviously) inspired by Underscore.js and many
- * functions were optimized after reading Ashkenas' source code.
+ * functions were optimized after reading Ashkenas's source code.
  * Other functions were inspired by @Fogus. And I preferred Brian
  * McKenna's version of `curry`, from bilby.js
  *
