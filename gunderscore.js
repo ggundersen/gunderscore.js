@@ -1,6 +1,23 @@
 /* 
  * gunderscore
- * 2013-10-15
+ * Gregory Gundersen
+ * 2013-10-15 -- 2013-11-15
+ * 
+ * Gunderscore.js is a JavaScript utility library for functional
+ * programming. I wrote this library while reading Michael Fogus's
+ * "Functional JavaScript."
+ *
+ * The library is (obviously) inspired by Underscore.js and many
+ * functions were optimized after reading Ashkenas' source code.
+ * Other functions were inspired by @Fogus. And I preferred Brian
+ * McKenna's version of `curry`, from bilby.js
+ *
+ * That said, I wrote the first draft of each function myself and
+ * intentionally kept the library simple for educational purposes.
+ * Underscore.js does a lot of interesting tricks for performance
+ * and usability (early returns, error handling, chaining,
+ * delegation to native methods, &c.). In these situations, I have
+ * erred on the side of simplicity, if only for myself.
  * --------------------------------------------------------------- */
 
 
@@ -38,8 +55,6 @@
 	// rather, it abstracts them away with functions. And any loss in
 	// performance can be mitigated or regained by a compressor.
 	var each = g_.each = function(coll, func) {
-		if ( !exists(coll) ) return;
-
 		var i = 0,
 			keys,
 			len;
@@ -47,7 +62,7 @@
 		if ( isIndexed(coll) ) {
 			len = coll.length;
 			for ( ; i < len; i++) {
-				// Use call to allow for function context
+				// Underscore.js uses `call` for function context
 				// configuration.
 				func(coll[i], i);
 			}
@@ -182,11 +197,8 @@
 	// `invert` takes an associative array and switches the keys and
 	// the values.
 	var invert = g_.invert = function(coll) {
-
-		if ( isArray(coll) ) return;
-
-		var result = {},
-			ks     = keys(coll),
+		var ks     = keys(coll),
+			result = {},
 			vs     = vals(coll);
 
 		each(keys, function(i) {
@@ -222,6 +234,9 @@
 	};
 
 
+	// `properSubset`, while not particularly useful, highlights the
+	// power of abstraction. Now that `any` and `all` are functions,
+	// `properSubset` is a one-liner.
 	var properSubset = g_.properSubset = function(coll, pred) {
 		return any(coll) && !all(coll);
 	}
@@ -231,7 +246,7 @@
 	// input array removed.
 	var tail = g_.tail = function(coll) {
 		// Why not `return coll.slice(1)`? See:
-		// fhttp://stackoverflow.com/questions/7056925/
+		// http://stackoverflow.com/questions/7056925/
 		return Array.prototype.slice.call(coll, 1);
 	};
 
@@ -250,8 +265,6 @@
 	var max = g_.max = function(coll, pred) {
 		var result = -Infinity; // This acounts for negative numbers.
 
-		if (!g_.exists(coll) || !g_.isArray(coll)) return;
-
 		each(coll, function(i) {
 			if ( g_.isGreaterThan(coll[i], result) ) {
 				result = coll[i];
@@ -266,8 +279,6 @@
 	var min = g_.min = function(coll, pred) {
 		var result = Infinity; // This acounts for positive numbers.
 
-		if (!g_.exists(coll) || !g_.isArray(coll)) return;
-
 		each(coll, function(i) {
 			if ( !g_.isGreaterThan(coll[i], result) ) {
 				result = coll[i];
@@ -275,16 +286,6 @@
 		});
 
 		return result;
-	};
-
-
-	// `pipeline`
-	var pipeline = g_.pipeline = function(seed /*, args */) {
-		return reduce(tail(arguments),
-					  function(last, curr) {
-					  	  return curr(last);
-					  },
-					  seed);
 	};
 
 
@@ -318,10 +319,23 @@
 	};
 
 
-/* Currying and partial application
+	// `pipeline` executes a list of functions in order, with each
+	// function working against a returnd values, not a mutable
+	// reference. See `g_`.
+	var pipeline = g_.pipeline = function(seed /*, args */) {
+		return reduce(
+					tail(arguments),
+					function(last, curr) {
+						return curr(last);
+					},
+					seed);
+	};
+
+
+/* Currying
  *
  * @Fogus: 'A curried function is one that returns a new function for
- * every logical argument that it takes.''
+ * every logical argument that it takes.'
  * --------------------------------------------------------------- */
 
 
@@ -376,14 +390,16 @@
 
 	// `times` executes `func` `n` times.
 	var times = g_.times = function(n, func) {
-		each( g_.range(n), func );
+		each(g_.range(n), func);
 		return;
 	};
 
 	// `constant` is configurable, higher-order that returns a function
 	// that always returns the input.
 	var constant = g_.constant = function(constant) {
-		return function() { return constant; };
+		return function() {
+			return constant;
+		};
 	};
 
 
@@ -401,15 +417,6 @@
 		}
 
 		return result;
-	};
-
-
-	// `clone` creates a clone of an array or associative array
-	// without mutating the input.
-	var clone = g_.clone = function(coll) {
-		// TODO: Add `deep copy` functionality.
-		if ( isArray(coll) )  return coll.slice(0);
-		if ( isObject(coll) ) return mixin({}, coll);
 	};
 
 
@@ -483,6 +490,7 @@
 		}
 	};
 
+
 	/* Object functions
  	 * ---------------- */
 
@@ -508,6 +516,14 @@
 		}
 
 		return result;
+	};
+
+
+	// `clone` creates a shallow copy of an array or associative
+	// array without mutating the input.
+	var clone = g_.clone = function(coll) {
+		if ( isArray(coll) )  return coll.slice(0);
+		if ( isObject(coll) ) return mixin({}, coll);
 	};
 
 
@@ -547,10 +563,9 @@
 	};
 
 
-	// `has` is a convenience wrapper for `hasOwnProperty`. It
-	// highlights how functional programming create fluent interfaces
-	// and now the built-in behavior of `has` can be passed around as
-	// a first-class function.
+	// `has` is a convenience wrapper for `hasOwnProperty`. Now the
+	// built-in behavior of `has` can be passed around as a first-
+	// class function.
 	var has = g_.has = function(obj, key) {
 		return obj.hasOwnProperty(key);
 	};
