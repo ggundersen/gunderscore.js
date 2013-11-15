@@ -7,7 +7,18 @@
 (function() {
 
 
-	// The `gunderscore` object
+	// `g_` is just a namespace, unlike `_`, which is a function
+	// that can accept arguments. Underscore is designed for
+	// chaining which, while elegant, is not particularly functional.
+	// Chaining requires returning a reference to the actual `_`
+	// object, rather than a value. Because of this, functions that
+	// are chained often mutate the value passed in. They do this
+	// because they are returning `_`, not the value.
+	//
+	// Pipelining is visually similar--every function is lined up in
+	// a row--but conceptually quite different. In a pipeline, each
+	// function returns a value and the next function works against
+	// that value. See `pipeline`.
 	this.g_ = g_ = {};
 
 
