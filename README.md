@@ -7,4 +7,4 @@ The library is (obviously) inspired by Underscore.js and many functions were opt
 
 That said, I wrote the first draft of each function myself and intentionally kept the library simple for educational purposes. Underscore.js does a lot of interesting tricks for performance and usability (early returning, error handling, chaining, delegatingto native methods, &c.). In these situations, I have erred on the side of simplicity, if only for myself.
 
-You can play around with Gunderscore.js on my [http://gregorygundersen.com/gunderscorejs/](website).
+You can play around with Gunderscore.js on my [website](http://gregorygundersen.com/gunderscorejs/).
